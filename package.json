@@ -1,5 +1,5 @@
 {
-  "name": "react-native-picklist",
+  "name": "@hecom/react-native-picklist",
   "version": "1.4.0",
   "private": false,
   "description": "General page for single/multiple select/show with single/multiple data level.",
@@ -7,7 +7,7 @@
   "types": "index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gaoxiaosong/react-native-picklist.git"
+    "url": "https://github.com/hecom-rn/react-native-picklist.git"
   },
   "keywords": [
     "React-Native",
@@ -21,14 +21,16 @@
   "author": "Xiaosong Gao",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gaoxiaosong/react-native-picklist/issues",
+    "url": "https://github.com/hecom-rn/react-native-picklist/issues",
     "email": "gaoxiaosong06@gmail.com"
   },
-  "homepage": "https://github.com/gaoxiaosong/react-native-picklist#readme",
+  "homepage": "https://github.com/hecom-rn/react-native-picklist#readme",
   "dependencies": {
     "@hecom/image-arrow": "^1.0.0",
-    "general-tree": "^1.1.4",
     "react-navigation-header-buttons": "^2.1.1",
     "react-native-general-searchbar": "^1.0.6"
+  },
+  "peerDependencies": {
+    "@hecom/general-tree": "*"
   }
 }

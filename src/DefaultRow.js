@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { FullSelect, IncompleteSelect, NotSelect } from 'general-tree';
+import { FullSelect, IncompleteSelect, NotSelect } from '@hecom/general-tree';
 import ArrowImage from '@hecom/image-arrow';
 import { isCascade } from './Util';
 
@@ -27,14 +27,26 @@ export const multiLevelNode = (treeNode, props) => {
 
 export const multiLevelLeafNode = (treeNode, props) => {
     const selectState = getSelectState(treeNode, isCascade(props));
-    const {labelKey, numberOfTextLines, renderMultiSelectIcon} = props;
+    const {labelKey, numberOfTextLines, renderMultiSelectIcon, weakNodeTag} = props;
     const info = treeNode.getInfo()[labelKey];
     return (
         <View key={info} style={styles.leafContainer}>
             <View style={styles.cellSelected}>{renderMultiSelectIcon(selectState)}</View>
-            <Text style={styles.leafText} numberOfLines={numberOfTextLines}>
-                {info}
-            </Text>
+            <View style={styles.textContainer}>
+                <Text style={styles.leafText} numberOfLines={numberOfTextLines}>
+                    {info}
+                </Text>
+                {props.isWeakNode && (
+                    weakNodeTag ? weakNodeTag() :
+                    <View style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        backgroundColor: '#1890FF',
+                        marginLeft: 10,
+                    }} />)
+                }
+            </View>
         </View>
     );
 };
@@ -45,7 +57,7 @@ export const multiLevelNotLeafNode = (treeNode, props) => {
     const selectable = props.selectable ? props.selectable(treeNode) : true;
     const info = treeNode.getInfo()[labelKey];
     const leafCount = treeNode.getLeafChildrenCount();
-    const selectedLeafCount = treeNode.getSelectedLeafChildrenCount();
+    const selectedLeafCount = treeNode.getSelectedLeafChildrenCount({includeWeakNode: true});
     const arrowStyle = showCount ? {marginLeft: 0} : {marginLeft: 10};
     return (
         <View key={info} style={styles.treeCellContainer}>
@@ -136,7 +148,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     leafText: {
-        flex: 1,
         marginVertical: 20,
         fontSize: 16,
         color: '#333333',
@@ -157,6 +168,12 @@ const styles = StyleSheet.create({
         paddingRight: 15,
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: '#e6e6ea',
+    },
+    textContainer: {
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
     },
     treeCellLeft: {
         flex: 1,

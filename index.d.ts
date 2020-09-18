@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ImageRequireSource, FlatListProps, SectionListProps, StyleProp, ViewProps } from 'react-native';
-import Tree, { SelectValueType } from 'general-tree';
+import { ImageRequireSource, FlatListProps, SectionListProps, StyleProp, ViewProps, View } from 'react-native';
+import {Tree, SelectValueType } from '@hecom/general-tree';
 
 export interface PickListState {
     levelItems: Tree[];
@@ -43,6 +43,10 @@ export interface PickListProps {
     sectionListProps?: SectionListProps;
     searchListProps?: FlatListProps;
     buttonProps?: ViewProps;
+    firstRawRootPath?: string;//虚拟节点顶端路径
+    rootPath?: {(root:any): string};//获取节点路径
+    parentPath?: {(root:any): string};//获取父节点路径
+    weakNodeTag?: {(): Element}//虚拟节点标签
     labels: {
         close?: string;
         search?: string;

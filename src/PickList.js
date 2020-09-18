@@ -3,7 +3,7 @@ import { DeviceEventEmitter, FlatList, Image, LayoutAnimation, SafeAreaView, Sec
 import { HeaderButton } from 'react-navigation-header-buttons';
 import {HeaderBackButton} from '@react-navigation/stack';
 import SearchBar from 'react-native-general-searchbar';
-import Tree from 'general-tree';
+import InitTree from '@hecom/general-tree';
 import Cell from './Cell';
 import TitleLine from './TitleLine';
 import BottomBar from './BottomBar';
@@ -65,18 +65,22 @@ export default class extends React.PureComponent {
 
     constructor(props) {
         super(props);
-        const {data, childrenKey, idKey, labelKey, firstTitleLine, selectedIds, refreshSingleCell} = props;
+        const {data, firstRawRootPath, childrenKey, idKey, labelKey, firstTitleLine, selectedIds, refreshSingleCell, rootPath, parentPath} = props;
         this.defaultRootId = '__root__';
         const idOnlyKey = Array.isArray(idKey) ? idKey[0] : idKey;
         const treeRoot = Array.isArray(data) ?
-            {[childrenKey]: data, [idOnlyKey]: this.defaultRootId, [labelKey]: firstTitleLine} :
-            {[childrenKey]: [data], [idOnlyKey]: this.defaultRootId, [labelKey]: firstTitleLine};
-        const tree = new Tree(
-            treeRoot, undefined, childrenKey, idKey,
-            (treenode) => DeviceEventEmitter.emit(
+            {[childrenKey]: data, [idOnlyKey]: this.defaultRootId, [labelKey]: firstTitleLine, 'firstRawRootPath': firstRawRootPath} :
+            {[childrenKey]: [data], [idOnlyKey]: this.defaultRootId, [labelKey]: firstTitleLine, 'firstRawRootPath': firstRawRootPath};
+        const tree = InitTree({
+            root: treeRoot,
+            childrenKey: childrenKey,
+            idKey: idKey,
+            onStatusChange: (treenode) => DeviceEventEmitter.emit(
                 '__treenode__status__update__' + (refreshSingleCell ? treenode.getStringId() : '')
-            )
-        );
+            ),
+            rootPath: rootPath,
+            parentPath: parentPath
+        });
         this.isCascade = isCascade(props);
         this.state = {
             levelItems: [tree],
@@ -226,12 +230,13 @@ export default class extends React.PureComponent {
         );
     };
 
-    _renderRow = ({item}) => {
+    _renderRow = ({item, isWeakNode}) => {
         return (
             <Cell
                 {...this.props}
                 isSearching={this.state.isSearching}
                 treeNode={item}
+                isWeakNode= {isWeakNode}
                 onPress={this._clickRow}
             />
         );
@@ -286,10 +291,21 @@ export default class extends React.PureComponent {
         const dataProps = isSection ? {sections: nodeArr} : {data: nodeArr};
         const ListProps = isSection ? sectionListProps : flatListProps;
         const hasShowAll = isCascade(this.props) && showAllCell;
-        return (customView ? customView(nodeArr, this._renderRow) :
+
+        const wrapRenderRow = (...params)=>{
+            const obj = params[0];
+            const {item} = obj;
+            let isWeakNode = false;
+            if (item.getWeakParent().indexOf(treeNode) >= 0) {
+                isWeakNode = true;
+            }   
+            obj.isWeakNode = isWeakNode;
+            return this._renderRow(...params)
+        }
+        return (customView ? customView(nodeArr, wrapRenderRow) :
             <ListClass
                 key={index}
-                renderItem={this._renderRow}
+                renderItem={wrapRenderRow}
                 ListHeaderComponent={hasShowAll && this._renderShowAll}
                 style={[styles.listview, style]}
                 contentContainerStyle={style}

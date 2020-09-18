@@ -11,7 +11,8 @@ export default class extends React.Component {
         isSearching: PropTypes.bool.isRequired,
         treeNode: PropTypes.object.isRequired,
         onPress: PropTypes.func.isRequired,
-        refreshSingleCell: PropTypes.bool
+        refreshSingleCell: PropTypes.bool,
+        isWeakNode: PropTypes.bool
     };
 
     static defaultProps = {
