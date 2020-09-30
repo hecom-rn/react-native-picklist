@@ -129,6 +129,9 @@ export default class extends React.PureComponent {
                 );
             };
         }
+        navOptions.headerTitleContainerStyle = {
+            marginHorizontal: 75,
+        }
         this.props.navigation.setParams(navOptions);
     }
 
