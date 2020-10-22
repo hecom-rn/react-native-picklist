@@ -56,8 +56,8 @@ export const multiLevelNotLeafNode = (treeNode, props) => {
     const {onPress, labelKey, showCount, numberOfTextLines, renderMultiSelectIcon} = props;
     const selectable = props.selectable ? props.selectable(treeNode) : true;
     const info = treeNode.getInfo()[labelKey];
-    const leafCount = treeNode.getLeafChildrenCount();
-    const selectedLeafCount = treeNode.getSelectedLeafChildrenCount({includeWeakNode: true});
+    const leafCount = treeNode.getLeafCount();
+    const selectedLeafCount = treeNode.getSelectedLeafCount({includeWeakNode: true});
     const arrowStyle = showCount ? {marginLeft: 0} : {marginLeft: 10};
     return (
         <View key={info} style={styles.treeCellContainer}>

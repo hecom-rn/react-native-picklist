@@ -445,11 +445,7 @@ export default class extends React.PureComponent {
     _clickBottomItem = (index) => {
         const node = this.state.selectedItems[index];
         node.update(this.isCascade);
-        const nodes = [...this.state.selectedItems];
-        nodes.splice(index, 1);
-        this.setState({
-            selectedItems: nodes,
-        });
+        this._updateSelectedItems();
     };
 
     _onSubmit = (event) => {
@@ -470,45 +466,35 @@ export default class extends React.PureComponent {
 
     _selectItem = (item) => {
         item.update(this.isCascade);
-        let selectedItems;
-        if (item.isFullSelect(this.isCascade)) {
-            selectedItems = [...this.state.selectedItems, item];
-        } else {
-            selectedItems = this.state.selectedItems
-                .filter(node => !node.isEqual(item));
-        }
-        if (this.isCascade) {
-            if (item.isFullSelect(this.isCascade)) {
-                if (item.getStringId() === this.defaultRootId) {
-                    selectedItems = [...item.getChildren()];
-                } else if (!item.isLeaf()) {
-                    selectedItems = selectedItems.filter(node => !node.hasAncestor(item));
-                }
-            } else if (item.isNotSelect(this.isCascade)) {
-                selectedItems = selectedItems.filter(node => !node.hasAncestor(item));
-                const todos = [];
-                selectedItems.forEach(node => {
-                    if (item.hasAncestor(node)) {
-                        let ancestor = node;
-                        while (ancestor) {
-                            let tempAncestor = undefined;
-                            ancestor.getChildren().forEach(child => {
-                                if (item.hasAncestor(child)) {
-                                    tempAncestor = child;
-                                } else if (!item.isEqual(child)) {
-                                    todos.push(child);
-                                }
-                            });
-                            ancestor = tempAncestor;
-                        }
-                    }
-                });
-                selectedItems = selectedItems.filter(node => !item.hasAncestor(node));
-                todos.forEach(node => selectedItems.push(node));
-            }
-        }
-        this.setState({selectedItems});
+        this._updateSelectedItems();
     };
+
+    _updateSelectedItems = () => {
+        let selectedItems = this.state.levelItems[0]
+            .getChildren().
+            reduce((prv, cur) => {
+                const ddd = cur.getFullSelectChildren(true)
+                return [...prv, ...cur.getFullSelectChildren(true)];
+            }, []);
+        const selectedIncludeWeakItems = this.state.levelItems[0]
+            .getChildren().
+            reduce((prv, cur) => {
+                return [...prv, ...cur.getFullSelectChildren(true, { includeWeakNode: true })];
+            }, []);
+        //加上无任何挂载的虚拟节点
+        if (selectedItems.length !== selectedIncludeWeakItems.length) {
+            const sa = new Set(selectedItems);
+            const minus = selectedIncludeWeakItems.filter(fil => {
+                !sa.has(fil) && this.state.levelItems[0]
+                    .getChildren().
+                    reduce((prv, cur) => {
+                        return prv || fil.hasAncestor(cur);
+                    }, false);
+            });
+            selectedItems = [...selectedItems, ...minus];
+        }
+        this.setState({ selectedItems });
+    }
 
     _setSelectedItems = (idKey) => {
         try {
