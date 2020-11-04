@@ -473,13 +473,13 @@ export default class extends React.PureComponent {
         let selectedItems = this.state.levelItems[0]
             .getChildren().
             reduce((prv, cur) => {
-                const ddd = cur.getFullSelectChildren(true)
-                return [...prv, ...cur.getFullSelectChildren(true)];
+                const ddd = cur.getFullSelectChildren(this.isCascade)
+                return [...prv, ...cur.getFullSelectChildren(this.isCascade)];
             }, []);
         const selectedIncludeWeakItems = this.state.levelItems[0]
             .getChildren().
             reduce((prv, cur) => {
-                return [...prv, ...cur.getFullSelectChildren(true, { includeWeakNode: true })];
+                return [...prv, ...cur.getFullSelectChildren(this.isCascade, { includeWeakNode: true })];
             }, []);
         //加上无任何挂载的虚拟节点
         if (selectedItems.length !== selectedIncludeWeakItems.length) {
