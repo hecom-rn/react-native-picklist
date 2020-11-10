@@ -12,7 +12,7 @@ export default class extends React.PureComponent {
     };
 
     componentDidUpdate(prevProps) {
-        if (prevProps.selectedItems.length < this.props.selectedItems.length) {
+        if (prevProps.selectedItems.length !== this.props.selectedItems.length) {
             setTimeout(() => {
                 this.scrollView && this.scrollView.scrollToEnd({animated: false});
             }, 0);
