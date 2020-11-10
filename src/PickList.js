@@ -473,7 +473,6 @@ export default class extends React.PureComponent {
         let selectedItems = this.state.levelItems[0]
             .getChildren().
             reduce((prv, cur) => {
-                const ddd = cur.getFullSelectChildren(this.isCascade)
                 return [...prv, ...cur.getFullSelectChildren(this.isCascade)];
             }, []);
         const selectedIncludeWeakItems = this.state.levelItems[0]
@@ -493,7 +492,18 @@ export default class extends React.PureComponent {
             });
             selectedItems = [...selectedItems, ...minus];
         }
-        this.setState({ selectedItems });
+
+        const stateData = new Set(this.state.selectedItems);
+        const endData = [];
+        selectedItems = selectedItems.filter((item) => {
+            if (stateData.has(item)) {
+                return true;
+            } else {
+                endData.push(item);
+                return false;
+            }
+        })
+        this.setState({ selectedItems: [...selectedItems, ...endData] });
     }
 
     _setSelectedItems = (idKey) => {
