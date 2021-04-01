@@ -65,7 +65,7 @@ export default class extends React.PureComponent {
 
     constructor(props) {
         super(props);
-        const {data, firstRawRootPath, childrenKey, idKey, labelKey, firstTitleLine, selectedIds, refreshSingleCell, rootPath, parentPath} = props;
+        const {data, firstRawRootPath, childrenKey, idKey, labelKey, firstTitleLine, selectedIds, refreshSingleCell, rootPath, parentPath, addedData} = props;
         this.defaultRootId = '__root__';
         const idOnlyKey = Array.isArray(idKey) ? idKey[0] : idKey;
         const treeRoot = Array.isArray(data) ?
@@ -82,12 +82,36 @@ export default class extends React.PureComponent {
             parentPath: parentPath
         });
         this.isCascade = isCascade(props);
+        let addedTrees = [];
+        let selectItems = tree.setInitialState(selectedIds, this.isCascade);
+        if (Array.isArray(addedData) && addedData.length > 0) {
+            addedData.forEach(item => {
+                const addedTreeRoot = {[childrenKey]: item, [idOnlyKey]: this.defaultRootId, [labelKey]: firstTitleLine, 'firstRawRootPath': firstRawRootPath};
+                const addedTree = InitTree({
+                    root: addedTreeRoot,
+                    childrenKey: childrenKey,
+                    idKey: idKey,
+                    onStatusChange: (treenode) => DeviceEventEmitter.emit(
+                        '__treenode__status__update__' + (refreshSingleCell ? treenode.getStringId() : '')
+                    ),
+                    rootPath: rootPath,
+                    parentPath: parentPath
+                });
+                addedTrees.push(addedTree);
+            });
+            
+            addedTrees.forEach(addedTree => {
+                let tmp = addedTree.setInitialState(selectedIds, this.isCascade);
+                selectItems = selectItems.concat(tmp);
+            });
+        }
         this.state = {
             levelItems: [tree],
-            selectedItems: tree.setInitialState(selectedIds, this.isCascade),
+            selectedItems: selectItems,
             searchText: '',
             isSearching: false,
             screenWidth: 0,
+            addedLevelItems: addedTrees,
         };
     }
 
@@ -354,6 +378,21 @@ export default class extends React.PureComponent {
         }
     };
 
+    _getCurrentSelectedIdKeys = (idKey = 'code') => {
+        const { selectedItems } = this.state;
+        const selectedIds = [];
+        if (selectedItems && selectedItems.length > 0) {
+            selectedItems
+                .filter((item) => item.isSelected == 1)
+                .map((item) => {
+                    if (selectedIds.indexOf(item.root.info[idKey]) == -1) {
+                        selectedIds.push(item.root.info[idKey]);
+                    }
+                });
+        }
+        return selectedIds;
+    };
+
     _handlePressToPrevPage = (index) => {
         const levelItems = this.state.levelItems.slice(0, index);
         this._show(index - 1, levelItems);
@@ -469,33 +508,42 @@ export default class extends React.PureComponent {
         this._updateSelectedItems();
     };
 
-    _updateSelectedItems = () => {
-        let selectedItems = this.state.levelItems[0]
-            .getChildren().
-            reduce((prv, cur) => {
-                return [...prv, ...cur.getFullSelectChildren(this.isCascade)];
-            }, []);
-        const selectedIncludeWeakItems = this.state.levelItems[0]
-            .getChildren().
-            reduce((prv, cur) => {
-                return [...prv, ...cur.getFullSelectChildren(this.isCascade, { includeWeakNode: true })];
-            }, []);
+    _getUpdateSelectedItems = (treeItem) => {
+        let selectedItems =  treeItem.getChildren().reduce((prv, cur) => {
+            return [...prv, ...cur.getFullSelectChildren(this.isCascade)];
+        }, []);
+        const selectedIncludeWeakItems = treeItem.getChildren().reduce((prv, cur) => {
+            return [...prv, ...cur.getFullSelectChildren(this.isCascade, { includeWeakNode: true })];
+        }, []);
         //加上无任何挂载的虚拟节点
         if (selectedItems.length !== selectedIncludeWeakItems.length) {
             const sa = new Set(selectedItems);
             const minus = selectedIncludeWeakItems.filter(fil => {
-                !sa.has(fil) && this.state.levelItems[0]
-                    .getChildren().
-                    reduce((prv, cur) => {
-                        return prv || fil.hasAncestor(cur);
-                    }, false);
+                !sa.has(fil) && treeItem.getChildren().reduce((prv, cur) => {
+                    return prv || fil.hasAncestor(cur);
+                }, false);
             });
             selectedItems = [...selectedItems, ...minus];
         }
 
+        return selectedItems;
+    }
+
+    _updateSelectedItems = () => {
+        const {levelItems, addedLevelItems} = this.state;
+        let tmpSelectedItems = this._getUpdateSelectedItems(levelItems[0]);
+        if (addedLevelItems && Array.isArray(addedLevelItems) && addedLevelItems.length > 0) {
+            addedLevelItems.forEach(itemTree => {
+                tmpSelectedItems = tmpSelectedItems.concat(this._getUpdateSelectedItems(itemTree));
+            });
+        }
+
+        // 查重
+        tmpSelectedItems = Array.from(new Set(tmpSelectedItems));
+
         const stateData = new Set(this.state.selectedItems);
         const endData = [];
-        selectedItems = selectedItems.filter((item) => {
+        tmpSelectedItems = tmpSelectedItems.filter((item) => {
             if (stateData.has(item)) {
                 return true;
             } else {
@@ -503,16 +551,23 @@ export default class extends React.PureComponent {
                 return false;
             }
         })
-        this.setState({ selectedItems: [...selectedItems, ...endData] });
+
+        this.setState({ selectedItems: [...tmpSelectedItems, ...endData] });
     }
 
     _setSelectedItems = (idKey) => {
         try {
-            const {levelItems} = this.state;
-            const selectedItems = levelItems[0].setInitialState(idKey, this.isCascade);
-            selectedItems && selectedItems.forEach(item => item.isSelected = 1);
-            this.setState({selectedItems: selectedItems});
+            const {levelItems, addedLevelItems} = this.state;
+            let tmpSelectedItems = levelItems[0].setInitialState(idKey, this.isCascade);
+            if (addedLevelItems && Array.isArray(addedLevelItems) && addedLevelItems.length > 0) {
+                addedLevelItems.forEach(addedTree => {
+                    tmpSelectedItems = tmpSelectedItems.concat(addedTree.setInitialState(idKey, this.isCascade));
+                });
+            } 
+            tmpSelectedItems && tmpSelectedItems.forEach(item => item.isSelected = 1);
+            this.setState({selectedItems: tmpSelectedItems});
         } catch (e) {
+
         }
     }
 }
