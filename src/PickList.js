@@ -380,17 +380,19 @@ export default class extends React.PureComponent {
 
     _getCurrentSelectedIdKeys = (idKey = 'code') => {
         const { selectedItems } = this.state;
-        const selectedIds = [];
+        let selectedCodes = [];
+        let tmpSelectItems = [];
         if (selectedItems && selectedItems.length > 0) {
-            selectedItems
+            tmpSelectItems = [[], ...selectedItems].reduce((prv, cur) => [...prv, ...cur.getLeafChildren()]);
+            tmpSelectItems
                 .filter((item) => item.isSelected == 1)
                 .map((item) => {
-                    if (selectedIds.indexOf(item.root.info[idKey]) == -1) {
-                        selectedIds.push(item.root.info[idKey]);
+                    if (selectedCodes.indexOf(item.root.info[idKey]) == -1) {
+                        selectedCodes.push(item.root.info[idKey]);
                     }
                 });
         }
-        return selectedIds;
+        return selectedCodes;
     };
 
     _handlePressToPrevPage = (index) => {
