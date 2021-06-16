@@ -22,7 +22,6 @@ import ShowAllCell from './ShowAllCell';
 import Types from './Types';
 import { isCascade } from './Util';
 import { getImage, single_check_image } from './DefaultRow';
-import Constant from "../../../../core/constant";
 
 export default class extends React.PureComponent {
     static navigationOptions = ({route}) => {
@@ -206,7 +205,7 @@ export default class extends React.PureComponent {
 
     _renderEmpty = () => (
         <View style={styles.emptyContainer}>
-            <Image style={styles.emptyImage} source={Constant.config.searchEmptyImage()} />
+            <Image style={styles.emptyImage} source={require('../image/EmptySearch.png')} />
             <Text style={styles.emptyText}>暂无搜索历史</Text>
         </View>
     );
