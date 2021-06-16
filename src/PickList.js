@@ -205,7 +205,7 @@ export default class extends React.PureComponent {
 
     _renderEmpty = () => (
         <View style={styles.emptyContainer}>
-            <Image style={styles.emptyImage} source={require('../image/EmptySearch.png')} />
+            <Image style={styles.emptyImage} source={require('./image/EmptySearch.png')} />
             <Text style={styles.emptyText}>暂无搜索历史</Text>
         </View>
     );
