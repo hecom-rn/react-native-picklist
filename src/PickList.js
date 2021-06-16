@@ -1,5 +1,16 @@
 import React from 'react';
-import { DeviceEventEmitter, FlatList, Image, LayoutAnimation, SafeAreaView, SectionList, StyleSheet, View, Keyboard } from 'react-native';
+import {
+    DeviceEventEmitter,
+    FlatList,
+    Image,
+    LayoutAnimation,
+    SafeAreaView,
+    SectionList,
+    StyleSheet,
+    View,
+    Keyboard,
+    Text
+} from 'react-native';
 import { HeaderButton } from 'react-navigation-header-buttons';
 import {HeaderBackButton} from '@react-navigation/stack';
 import SearchBar from 'react-native-general-searchbar';
@@ -11,6 +22,7 @@ import ShowAllCell from './ShowAllCell';
 import Types from './Types';
 import { isCascade } from './Util';
 import { getImage, single_check_image } from './DefaultRow';
+import Constant from "../../../../core/constant";
 
 export default class extends React.PureComponent {
     static navigationOptions = ({route}) => {
@@ -163,6 +175,7 @@ export default class extends React.PureComponent {
         const hasBottom = this.props.showBottomView !== undefined ?
             this.props.showBottomView :
             this.props.multiselect;
+        const hideEmpty = this.state.searchText && this.state.searchText.length > 0;
         return (
             <View style={styles.view}>
                 {this.props.showSearchView && this._renderSearchBar()}
@@ -183,13 +196,20 @@ export default class extends React.PureComponent {
                         }}
                     >
                         {!this.state.isSearching && this._renderHeader()}
-                        {this.state.isSearching ? this._renderSearchingView() : this._renderPageView()}
+                        {this.state.isSearching ? (hideEmpty ? this._renderSearchingView() : this._renderEmpty()) : this._renderPageView()}
                     </View>
                 </SafeAreaView>
                 {hasBottom && this._renderBottomView()}
             </View>
         );
     }
+
+    _renderEmpty = () => (
+        <View style={styles.emptyContainer}>
+            <Image style={styles.emptyImage} source={Constant.config.searchEmptyImage()} />
+            <Text style={styles.emptyText}>暂无搜索历史</Text>
+        </View>
+    );
 
     _renderSearchBar = () => {
         return (
@@ -612,5 +632,15 @@ const styles = StyleSheet.create({
     displayView: {
         flex: 1,
         flexDirection: 'row',
+    },
+    emptyImage: {
+        marginTop: 100,
+        alignSelf: 'center',
+    },
+    emptyText: {
+        marginTop: 10,
+        fontSize: 14,
+        color: '#999999',
+        alignSelf: 'center',
     },
 });
