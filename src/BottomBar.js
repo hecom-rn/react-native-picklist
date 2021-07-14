@@ -41,10 +41,11 @@ export default class extends React.PureComponent {
 
     _renderButton = () => {
         const {onPress, selectedItems} = this.props;
+        const prefixTestID = this.props.prefixTestID || '';
         const selectedCount = (selectedItems && selectedItems.length > 0) ? ('(' + selectedItems.length + ')') : '';
         return (
             <View style={styles.buttonView}>
-                <TouchableOpacity style={styles.buttonTouch} onPress={onPress}>
+                <TouchableOpacity style={styles.buttonTouch} onPress={onPress} testID={`${prefixTestID}${this.props.labels.ok}`}>
                     <Text style={styles.buttonText}>
                         {this.props.labels.ok + selectedCount}
                     </Text>

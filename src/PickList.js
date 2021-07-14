@@ -71,6 +71,7 @@ export default class extends React.PureComponent {
         },
         renderSingleSelectIcon: () => <Image source={single_check_image()} style={styles.icon} />,
         renderMultiSelectIcon: (selectState) => <Image source={getImage(selectState)} style={styles.multiIcon} />,
+        prefixTestID: '',
         refreshSingleCell: true
     };
 
@@ -210,9 +211,13 @@ export default class extends React.PureComponent {
     );
 
     _renderSearchBar = () => {
+        const prefixTestID = this.props.prefixTestID || '';
         return (
             <SafeAreaView style={styles.searchbarContainer}>
                 <SearchBar
+                    textInputProps={{
+                        testID: `${prefixTestID}Input`,
+                    }}
                     placeholder={this.props.labels.search}
                     cancelText={this.props.labels.cancel}
                     searchText={this.state.searchText}
