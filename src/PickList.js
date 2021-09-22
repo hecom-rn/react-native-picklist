@@ -111,7 +111,7 @@ export default class extends React.PureComponent {
                 });
                 addedTrees.push(addedTree);
             });
-            
+
             addedTrees.forEach(addedTree => {
                 let tmp = addedTree.setInitialState(selectedIds, this.isCascade);
                 selectItems = selectItems.concat(tmp);
@@ -251,7 +251,7 @@ export default class extends React.PureComponent {
             this.props.multiselect,
             false,
             false
-        );
+        ).filter(node => this.props.selectable ? this.props.selectable(node): true);
         return (
             <View style={[styles.searchingViewContainer, style]}>
                 <FlatList
@@ -348,7 +348,7 @@ export default class extends React.PureComponent {
             let isWeakNode = false;
             if (item.getWeakParent().indexOf(treeNode) >= 0) {
                 isWeakNode = true;
-            }   
+            }
             obj.isWeakNode = isWeakNode;
             return this._renderRow(...params)
         }
@@ -588,7 +588,7 @@ export default class extends React.PureComponent {
                 addedLevelItems.forEach(addedTree => {
                     tmpSelectedItems = tmpSelectedItems.concat(addedTree.setInitialState(idKey, this.isCascade));
                 });
-            } 
+            }
             tmpSelectedItems && tmpSelectedItems.forEach(item => item.isSelected = 1);
             this.setState({selectedItems: tmpSelectedItems});
         } catch (e) {
