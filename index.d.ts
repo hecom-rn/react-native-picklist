@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ImageRequireSource, FlatListProps, SectionListProps, StyleProp, ViewProps, View } from 'react-native';
+import { ImageRequireSource, FlatListProps, SectionListProps, StyleProp, ViewProps } from 'react-native';
 import {Tree, SelectValueType } from '@hecom/general-tree';
 
 export interface PickListState {
@@ -13,7 +13,7 @@ export interface PickListState {
 
 export interface PickListProps {
     title: string;
-    data: {} | Array;
+    data: {} | Array<any>;
     navigation: any;
     firstTitleLine?: string;
     multilevel?: boolean;
@@ -31,7 +31,7 @@ export interface PickListProps {
     numberOfTextLines?: number;
     directBackWhenSingle?: boolean;
     cancelableWhenDirectBack?: boolean;
-    selectedIds?: Array;
+    selectedIds?: Array<string>;
     selectable?: (treeNode: Tree) => boolean;
     childrenKey?: string;
     idKey?: string | string[];
@@ -61,7 +61,7 @@ export interface PickListProps {
 export default class PickList extends React.PureComponent<PickListProps, PickListState> {
     getSelectedItems: () => Tree[];
     backToPreviousPage: () => boolean;
-};
+}
 
 export type PickListRowFunc = (treeNode: Tree, props: PickListProps) => React.ReactElement;
 
@@ -76,7 +76,8 @@ interface RowUtilType {
     select_image: () => ImageRequireSource;
     incomp_image: () => ImageRequireSource;
     single_check_image: () => ImageRequireSource;
-    getImage: (treeNode: Tree, cascade?: boolean) => ImageRequireSource | void;
+    getImage: (selectState: SelectValueType) => ImageRequireSource | void;
+    getSelectState: (treeNode: Tree, cascade?: boolean) => SelectValueType
 }
 
 export const PickListRowUtil: RowUtilType;
@@ -86,7 +87,7 @@ interface ShowAllCellProps extends PickListProps {
     onPress: (treeNode: Tree) => void;
 }
 
-export class PickListShowAllCell extends React.PureComponent<ShowAllCellProps> {};
+export class PickListShowAllCell extends React.PureComponent<ShowAllCellProps> {}
 
 interface BottomBarProps extends PickListProps {
     selectedItems: Tree[];
@@ -94,7 +95,7 @@ interface BottomBarProps extends PickListProps {
     onPressItem: (index: number) => void;
 }
 
-export class PickListBottomBar extends React.PureComponent<BottomBarProps> {};
+export class PickListBottomBar extends React.PureComponent<BottomBarProps> {}
 
 interface CellProps extends PickListProps {
     isSearching: boolean;
@@ -106,11 +107,11 @@ interface CellState {
     status: SelectValueType;
 }
 
-export class PickListCell extends React.Component<CellProps, CellState> {};
+export class PickListCell extends React.Component<CellProps, CellState> {}
 
 interface TitleLineProps extends PickListProps {
     levelItems: Tree[];
     onPress: (index: number) => void;
 }
 
-export class PickListTitleLine extends React.PureComponent<TitleLineProps> {};
+export class PickListTitleLine extends React.PureComponent<TitleLineProps> {}
