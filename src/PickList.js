@@ -566,7 +566,7 @@ export default class extends React.PureComponent {
         // 查重
         tmpSelectedItems = Array.from(new Set(tmpSelectedItems));
 
-        let stateData = Array.from(new Set(this.state.selectedItems));
+        let stateData = this.state.selectedItems;
         const endData = [];
 
         // 过滤掉已经可能取消选中的节点
