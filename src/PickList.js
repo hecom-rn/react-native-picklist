@@ -566,10 +566,21 @@ export default class extends React.PureComponent {
         // 查重
         tmpSelectedItems = Array.from(new Set(tmpSelectedItems));
 
-        const stateData = new Set(this.state.selectedItems);
+        let stateData = this.state.selectedItems;
         const endData = [];
+
+        // 过滤掉已经可能取消选中的节点
+        stateData = stateData.filter((item) => {
+            if (tmpSelectedItems.indexOf(item) != -1) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+
+        //  得到可能添加的节点
         tmpSelectedItems = tmpSelectedItems.filter((item) => {
-            if (stateData.has(item)) {
+            if (stateData.indexOf(item) != -1) {
                 return true;
             } else {
                 endData.push(item);
@@ -577,7 +588,7 @@ export default class extends React.PureComponent {
             }
         })
 
-        this.setState({ selectedItems: [...tmpSelectedItems, ...endData] });
+        this.setState({ selectedItems: [...stateData, ...endData] });
     }
 
     _setSelectedItems = (idKey) => {
