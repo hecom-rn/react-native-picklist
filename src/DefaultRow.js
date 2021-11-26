@@ -12,7 +12,7 @@ export const singleLevelNode = (treeNode, props) => {
     return (
         <View style={styles.row}>
             <View style={styles.container}>
-                <Text style={styles.text} numberOfLines={numberOfTextLines}>
+                <Text testID={`select_${treeNode.getInfo()[labelKey]}`} style={styles.text} numberOfLines={numberOfTextLines}>
                     {treeNode.getInfo()[labelKey]}
                 </Text>
                 {isSelected ? renderSingleSelectIcon() : <View style={styles.icon} />}
@@ -31,7 +31,9 @@ export const multiLevelLeafNode = (treeNode, props) => {
     const info = treeNode.getInfo()[labelKey];
     return (
         <View key={info} style={styles.leafContainer}>
-            <View style={styles.cellSelected}>{renderMultiSelectIcon(selectState)}</View>
+            <View
+                testID={`SelectIcon_${info}`}
+                style={styles.cellSelected}>{renderMultiSelectIcon(selectState)}</View>
             <View style={styles.textContainer}>
                 <Text style={styles.leafText} numberOfLines={numberOfTextLines}>
                     {info}
@@ -64,7 +66,10 @@ export const multiLevelNotLeafNode = (treeNode, props) => {
             <View style={styles.treeCellLeft}>
                 {selectable && (
                     <TouchableOpacity onPress={() => onPress(treeNode, true)}>
-                        <View style={styles.cellSelected}>{renderMultiSelectIcon(selectState)}</View>
+                        <View
+                            testID={`SelectIcon_${info}`}
+                            style={styles.cellSelected}>{renderMultiSelectIcon(selectState)}
+                        </View>
                     </TouchableOpacity>
                 )}
                 <Text
