@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     },
     text: {
         flex: 1,
-        marginVertical: 20,
+        // marginVertical: 20,
         fontSize: 16,
         color: '#333333',
     },
