@@ -9,7 +9,8 @@ import {
     StyleSheet,
     View,
     Keyboard,
-    Text
+    Text,
+    BackHandler
 } from 'react-native';
 import { HeaderButton } from 'react-navigation-header-buttons';
 import {HeaderBackButton} from '@react-navigation/stack';
@@ -125,6 +126,20 @@ export default class extends React.PureComponent {
             screenWidth: 0,
             addedLevelItems: addedTrees,
         };
+    }
+
+    UNSAFE_componentWillMount() {
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            this._clickBack(0);
+            return true;
+        });
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', () => {
+            this._clickBack(0);
+            return true;
+        });
     }
 
     componentDidMount() {
