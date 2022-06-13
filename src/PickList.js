@@ -130,14 +130,24 @@ export default class extends React.PureComponent {
 
     UNSAFE_componentWillMount() {
         BackHandler.addEventListener('hardwareBackPress', () => {
-            this._clickBack(0);
+            const curIndex = this.state.levelItems.length;
+            if (curIndex <= 1) {
+                this._popToPrevious();
+            } else {
+                this._handlePressToPrevPage(curIndex - 1);
+            }
             return true;
         });
     }
 
     componentWillUnmount() {
         BackHandler.removeEventListener('hardwareBackPress', () => {
-            this._clickBack(0);
+            const curIndex = this.state.levelItems.length;
+            if (curIndex <= 1) {
+                this._popToPrevious();
+            } else {
+                this._handlePressToPrevPage(curIndex - 1);
+            }
             return true;
         });
     }
