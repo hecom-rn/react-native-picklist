@@ -23,6 +23,7 @@ import ShowAllCell from './ShowAllCell';
 import Types from './Types';
 import { isCascade } from './Util';
 import { getImage, single_check_image } from './DefaultRow';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default class extends React.PureComponent {
     static navigationOptions = ({route}) => {
@@ -210,7 +211,7 @@ export default class extends React.PureComponent {
                         onLayout={({nativeEvent: {layout: {width}}}) => {
                             if (width > 0 && width !== this.state.screenWidth) {
                                 this.setState({
-                                    screenWidth: width,
+                                    screenWidth: this.props.multilevel ? 200 : width,
                                     frame: {
                                         top: 0,
                                         bottom: 0,
@@ -398,7 +399,8 @@ export default class extends React.PureComponent {
         const deepth = this.state.levelItems.length;
         const totalWidth = this.state.screenWidth * deepth;
         return (
-            <View style={[{width: totalWidth}, styles.displayView, this.state.frame]}>
+            <ScrollView style={styles.displayView}>
+                <View style={[{width: totalWidth}, styles.displayView, this.state.frame]}>
                 {
                     new Array(deepth).fill(1).map((item, index) => {
                         if (index < this.state.levelItems.length) {
@@ -408,7 +410,8 @@ export default class extends React.PureComponent {
                         }
                     })
                 }
-            </View>
+                </View>
+            </ScrollView>
         );
     };
 
@@ -455,7 +458,7 @@ export default class extends React.PureComponent {
             frame: {
                 top: 0,
                 bottom: 0,
-                left: 0 - index * this.state.screenWidth,
+                // left: 0 - index * this.state.screenWidth,
             },
         });
     };
@@ -495,8 +498,19 @@ export default class extends React.PureComponent {
             !treeNode.isLeaf() &&
             !this.state.isSearching
         ) {
-            const levelItems = [...this.state.levelItems, treeNode];
-            this._show(this.state.levelItems.length, levelItems);
+            const parentTreeNode = treeNode.getParent();
+            let parentIndex = -1;
+            for (var i = 0; i < this.state.levelItems.length; i++) {
+                const item = this.state.levelItems[i];
+                if (item.isEqual(parentTreeNode)) {
+                    parentIndex = i+1;
+                    break;
+                }
+            }
+            if (parentIndex >= 0) {
+                const levelItems = [...this.state.levelItems.slice(0, parentIndex), treeNode];
+                this._show(this.state.levelItems.length, levelItems);
+            }
         } else {
             if (this.props.multiselect) {
                 this._selectItem(treeNode);
