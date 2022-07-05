@@ -12,7 +12,8 @@ export default class extends React.Component {
         treeNode: PropTypes.object.isRequired,
         onPress: PropTypes.func.isRequired,
         refreshSingleCell: PropTypes.bool,
-        isWeakNode: PropTypes.bool
+        isWeakNode: PropTypes.bool,
+        shadowItem: PropTypes.object
     };
 
     static defaultProps = {

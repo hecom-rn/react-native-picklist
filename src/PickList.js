@@ -53,7 +53,7 @@ export default class extends React.PureComponent {
         multilevel: false,
         multiselect: false,
         showSearchView: true,
-        showTitleLine: true,
+        showTitleLine: false,
         showAllCell: true,
         showCount: false,
         numberOfTextLines: 0,
@@ -126,13 +126,14 @@ export default class extends React.PureComponent {
             isSearching: false,
             screenWidth: 0,
             addedLevelItems: addedTrees,
+            shadowItems: [],
         };
     }
 
     UNSAFE_componentWillMount() {
         BackHandler.addEventListener('hardwareBackPress', () => {
             const curIndex = this.state.levelItems.length;
-            if (curIndex <= 1) {
+            if (curIndex <= 1 || !this.props.showTitleLine) {
                 this._popToPrevious();
             } else {
                 this._handlePressToPrevPage(curIndex - 1);
@@ -144,7 +145,7 @@ export default class extends React.PureComponent {
     componentWillUnmount() {
         BackHandler.removeEventListener('hardwareBackPress', () => {
             const curIndex = this.state.levelItems.length;
-            if (curIndex <= 1) {
+            if (curIndex <= 1 || !this.props.showTitleLine) {
                 this._popToPrevious();
             } else {
                 this._handlePressToPrevPage(curIndex - 1);
@@ -182,11 +183,11 @@ export default class extends React.PureComponent {
                             {...props}
                             onPress={this._clickBack.bind(this, 0)}
                         />
-                        <HeaderButton
+                        {this.props.showTitleLine ? <HeaderButton
                             title={this.props.labels.close}
                             onPress={this._clickBack.bind(this, 1)}
                             {...this.props.buttonProps}
-                        />
+                        /> : null}
                     </View>
                 );
             };
@@ -205,13 +206,13 @@ export default class extends React.PureComponent {
         return (
             <View style={styles.view}>
                 {this.props.showSearchView && this._renderSearchBar()}
-                <SafeAreaView style={styles.innersafeview}>
+                <SafeAreaView style={this.props.multilevel ? [styles.innersafeview, {'backgroundColor' : 'white'}] : styles.innersafeview}>
                     <View
                         style={{flex: 1, overflow: 'hidden'}}
                         onLayout={({nativeEvent: {layout: {width}}}) => {
                             if (width > 0 && width !== this.state.screenWidth) {
                                 this.setState({
-                                    screenWidth: this.props.multilevel ? 200 : width,
+                                    screenWidth: this.props.multilevel && !this.state.isSearching ? 250 : width,
                                     frame: {
                                         top: 0,
                                         bottom: 0,
@@ -249,7 +250,7 @@ export default class extends React.PureComponent {
                     searchText={this.state.searchText}
                     onPressCancel={() => {
                         LayoutAnimation.linear();
-                        this.setState({isSearching: false, searchText: ''});
+                        this.setState({isSearching: false, searchText: '', screenWidth: this.props.multilevel ? 250 : this.state.screenWidth});
                     }}
                     onSubmitEditing={this._onSubmit}
                     onChangeText={this._onSearch}
@@ -306,13 +307,14 @@ export default class extends React.PureComponent {
         );
     };
 
-    _renderRow = ({item, isWeakNode}) => {
+    _renderRow = ({item, isWeakNode, shadowItem}) => {
         return (
             <Cell
                 {...this.props}
                 isSearching={this.state.isSearching}
                 treeNode={item}
                 isWeakNode= {isWeakNode}
+                shadowItem= {shadowItem}
                 onPress={this._clickRow}
             />
         );
@@ -349,9 +351,9 @@ export default class extends React.PureComponent {
     };
 
     _renderPage = (index) => {
-        const {split, sort, sectionListProps, flatListProps, showAllCell, customView} = this.props;
-        const style = {width: this.state.screenWidth};
+        const {split, sort, sectionListProps, flatListProps, showAllCell, customView, multilevel} = this.props;
         const treeNode = this.state.levelItems[index];
+        const shadowItemNode = multilevel && this.state.shadowItems.length > index ? this.state.shadowItems[index] : undefined;
         let nodeArr, isSection;
         if (split) {
             isSection = true;
@@ -363,6 +365,8 @@ export default class extends React.PureComponent {
                 nodeArr = nodeArr.sort(sort);
             }
         }
+        const style = multilevel ? {width: this.state.screenWidth, borderRightWidth: StyleSheet.hairlineWidth,
+            borderRightColor: '#e6e6ea',} : {width: this.state.screenWidth};
         const ListClass = isSection ? SectionList : FlatList;
         const dataProps = isSection ? {sections: nodeArr} : {data: nodeArr};
         const ListProps = isSection ? sectionListProps : flatListProps;
@@ -376,6 +380,7 @@ export default class extends React.PureComponent {
                 isWeakNode = true;
             }
             obj.isWeakNode = isWeakNode;
+            obj.shadowItem = shadowItemNode;
             return this._renderRow(...params)
         }
         return (customView ? customView(nodeArr, wrapRenderRow) :
@@ -399,7 +404,7 @@ export default class extends React.PureComponent {
         const deepth = this.state.levelItems.length;
         const totalWidth = this.state.screenWidth * deepth;
         return (
-            <ScrollView style={styles.displayView}>
+            <ScrollView style={styles.displayView} ref={(ref) => (this.pageScrollView = ref)}>
                 <View style={[{width: totalWidth}, styles.displayView, this.state.frame]}>
                 {
                     new Array(deepth).fill(1).map((item, index) => {
@@ -453,14 +458,25 @@ export default class extends React.PureComponent {
 
     _show = (index, levelItems) => {
         LayoutAnimation.easeInEaseOut();
+        const shadowItems = this.props.multilevel && levelItems.length > 1 ? levelItems.slice(1) : [];
         this.setState({
             levelItems,
             frame: {
                 top: 0,
                 bottom: 0,
-                // left: 0 - index * this.state.screenWidth,
             },
+            shadowItems,
         });
+
+        if (!this.state.isSearching) {
+            setTimeout(() => {
+                this.pageScrollView.scrollTo({
+                    x: index * this.state.screenWidth,
+                    y: 0,
+                    animated: true,
+                });
+            }, 200);
+        }
     };
 
     _popToPrevious = () => {
@@ -474,9 +490,9 @@ export default class extends React.PureComponent {
     };
 
     _clickBack = (index) => {
-        if (index === 0) {
+        if (index === 0 && !this.state.isSearching) {
             const curIndex = this.state.levelItems.length;
-            if (curIndex <= 1) {
+            if (curIndex <= 1 || !this.props.showTitleLine) {
                 this._popToPrevious();
             } else {
                 this._handlePressToPrevPage(curIndex - 1);
@@ -556,6 +572,7 @@ export default class extends React.PureComponent {
         this.setState({
             isSearching: true,
             searchText: text,
+            screenWidth: global.screenWidth(),
         });
     };
 
@@ -564,6 +581,7 @@ export default class extends React.PureComponent {
         this.setState({
             isSearching: true,
             searchText: text,
+            screenWidth: global.screenWidth(),
         });
     };
 

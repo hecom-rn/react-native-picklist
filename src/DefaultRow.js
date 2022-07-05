@@ -27,10 +27,10 @@ export const multiLevelNode = (treeNode, props) => {
 
 export const multiLevelLeafNode = (treeNode, props) => {
     const selectState = getSelectState(treeNode, isCascade(props));
-    const {labelKey, numberOfTextLines, renderMultiSelectIcon, weakNodeTag} = props;
+    const {labelKey, numberOfTextLines, renderMultiSelectIcon, weakNodeTag, multilevel, isSearching} = props;
     const info = treeNode.getInfo()[labelKey];
     return (
-        <View key={info} style={styles.leafContainer}>
+        <View key={info} style={multilevel && !isSearching ? [styles.leafContainer , { borderBottomWidth: 0}] : styles.leafContainer}>
             <View
                 testID={`SelectIcon_${info}`}
                 style={styles.cellSelected}>{renderMultiSelectIcon(selectState)}</View>
@@ -55,14 +55,15 @@ export const multiLevelLeafNode = (treeNode, props) => {
 
 export const multiLevelNotLeafNode = (treeNode, props) => {
     const selectState = getSelectState(treeNode, isCascade(props));
-    const {onPress, labelKey, showCount, numberOfTextLines, renderMultiSelectIcon} = props;
+    const showShadowState = getShadowState(treeNode, props);
+    const {onPress, labelKey, showCount, numberOfTextLines, renderMultiSelectIcon, multilevel, isSearching} = props;
     const selectable = props.selectable ? props.selectable(treeNode) : true;
     const info = treeNode.getInfo()[labelKey];
     const leafCount = treeNode.getLeafCount();
     const selectedLeafCount = treeNode.getSelectedLeafCount({includeWeakNode: true});
     const arrowStyle = showCount ? {marginLeft: 0} : {marginLeft: 10};
     return (
-        <View key={info} style={styles.treeCellContainer}>
+        <View key={info} style={[multilevel && !isSearching ? [styles.treeCellContainer , { borderBottomWidth: 0}] : styles.treeCellContainer, showShadowState ? {backgroundColor: '#F7F7F9'} : {backgroundColor: 'white'}]}>
             <View style={styles.treeCellLeft}>
                 {selectable && (
                     <TouchableOpacity onPress={() => onPress(treeNode, true)}>
@@ -120,6 +121,13 @@ export const getSelectState = (treeNode, cascade) => {
         return undefined;
     }
 };
+
+export const getShadowState = (treeNode, {shadowItem}) => {
+    if (shadowItem && shadowItem !== undefined && treeNode.root.path === shadowItem.root.path) {
+        return true;
+    }
+    return false;
+}
 
 
 const styles = StyleSheet.create({

@@ -33,7 +33,7 @@ export default class extends React.PureComponent {
     }
 
     render() {
-        const {labels: {selectAll, deselectAll}, renderMultiSelectIcon} = this.props;
+        const {labels: {selectAll, deselectAll}, renderMultiSelectIcon, multilevel} = this.props;
         const isFull = this.tree.isFullSelect(this.cascade);
         const text = isFull ? deselectAll : selectAll;
         return (
@@ -41,7 +41,7 @@ export default class extends React.PureComponent {
                 activeOpacity={0.8}
                 onPress={() => this.props.onPress(this.tree)}
             >
-                <View style={styles.view}>
+                <View style={multilevel ? [styles.view , { borderBottomWidth: 0}] : styles.view}>
                     <View style={styles.image}>
                         {renderMultiSelectIcon(isFull ? FullSelect : NotSelect)}
                     </View>
