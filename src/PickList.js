@@ -125,8 +125,10 @@ export default class extends React.PureComponent {
             searchText: '',
             isSearching: false,
             screenWidth: 0,
+            scrollPageWidth: 0,
             addedLevelItems: addedTrees,
             shadowItems: [],
+            levelDeep: tree.getDeepth(true),
         };
     }
 
@@ -206,18 +208,19 @@ export default class extends React.PureComponent {
         return (
             <View style={styles.view}>
                 {this.props.showSearchView && this._renderSearchBar()}
-                <SafeAreaView style={this.props.multilevel ? [styles.innersafeview, {'backgroundColor' : 'white'}] : styles.innersafeview}>
+                <SafeAreaView style={this.props.multilevel && this.state.levelDeep >1 ? [styles.innersafeview, {'backgroundColor' : 'white'}] : styles.innersafeview}>
                     <View
                         style={{flex: 1, overflow: 'hidden'}}
                         onLayout={({nativeEvent: {layout: {width}}}) => {
                             if (width > 0 && width !== this.state.screenWidth) {
                                 this.setState({
-                                    screenWidth: this.props.multilevel && !this.state.isSearching ? 250 : width,
+                                    screenWidth: width,
                                     frame: {
                                         top: 0,
                                         bottom: 0,
-                                        left: 0 - (this.state.levelItems.length - 1) * width,
-                                    }
+                                        // left: 0 - (this.state.levelItems.length - 1) * width,
+                                    },
+                                    scrollPageWidth: this.props.multilevel && this.state.levelDeep > 1 && !this.state.isSearching ? 250 : width,
                                 });
                             }
                         }}
@@ -250,7 +253,7 @@ export default class extends React.PureComponent {
                     searchText={this.state.searchText}
                     onPressCancel={() => {
                         LayoutAnimation.linear();
-                        this.setState({isSearching: false, searchText: '', screenWidth: this.props.multilevel ? 250 : this.state.screenWidth});
+                        this.setState({isSearching: false, searchText: '', scrollPageWidth: this.props.multilevel && this.state.levelDeep > 1 ? 250 : this.state.screenWidth});
                     }}
                     onSubmitEditing={this._onSubmit}
                     onChangeText={this._onSearch}
@@ -365,8 +368,8 @@ export default class extends React.PureComponent {
                 nodeArr = nodeArr.sort(sort);
             }
         }
-        const style = multilevel ? {width: this.state.screenWidth, borderRightWidth: StyleSheet.hairlineWidth,
-            borderRightColor: '#e6e6ea',} : {width: this.state.screenWidth};
+        const style = multilevel && this.state.levelDeep > 1 ? {width: this.state.scrollPageWidth, borderRightWidth: StyleSheet.hairlineWidth,
+            borderRightColor: '#e6e6ea',} : {width: this.state.scrollPageWidth};
         const ListClass = isSection ? SectionList : FlatList;
         const dataProps = isSection ? {sections: nodeArr} : {data: nodeArr};
         const ListProps = isSection ? sectionListProps : flatListProps;
@@ -397,14 +400,14 @@ export default class extends React.PureComponent {
     };
 
     _renderEmptyPage = (index) => {
-        return <View key={index} style={{width: this.state.screenWidth}} />;
+        return <View key={index} style={{width: this.state.scrollPageWidth}} />;
     };
 
     _renderPageView = () => {
         const deepth = this.state.levelItems.length;
-        const totalWidth = this.state.screenWidth * deepth;
+        const totalWidth = this.state.scrollPageWidth * deepth;
         return (
-            <ScrollView style={styles.displayView} ref={(ref) => (this.pageScrollView = ref)}>
+            <ScrollView style={[styles.displayView, {width: this.state.screenWidth}]} ref={(ref) => (this.pageScrollView = ref)}>
                 <View style={[{width: totalWidth}, styles.displayView, this.state.frame]}>
                 {
                     new Array(deepth).fill(1).map((item, index) => {
@@ -471,7 +474,7 @@ export default class extends React.PureComponent {
         if (!this.state.isSearching) {
             setTimeout(() => {
                 this.pageScrollView.scrollTo({
-                    x: index * this.state.screenWidth,
+                    x: index * this.state.scrollPageWidth,
                     y: 0,
                     animated: true,
                 });
@@ -572,7 +575,7 @@ export default class extends React.PureComponent {
         this.setState({
             isSearching: true,
             searchText: text,
-            screenWidth: global.screenWidth(),
+            scrollPageWidth: global.screenWidth(),
         });
     };
 
@@ -581,7 +584,7 @@ export default class extends React.PureComponent {
         this.setState({
             isSearching: true,
             searchText: text,
-            screenWidth: global.screenWidth(),
+            scrollPageWidth: global.screenWidth(),
         });
     };
 
