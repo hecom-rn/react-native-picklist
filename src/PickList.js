@@ -474,7 +474,7 @@ export default class extends React.PureComponent {
         if (!this.state.isSearching) {
             setTimeout(() => {
                 this.pageScrollView.scrollTo({
-                    x: index * this.state.scrollPageWidth,
+                    x: (index - 2 > 0 ? index - 2 : 0) * this.state.scrollPageWidth,
                     y: 0,
                     animated: true,
                 });
@@ -528,7 +528,7 @@ export default class extends React.PureComponent {
             }
             if (parentIndex >= 0) {
                 const levelItems = [...this.state.levelItems.slice(0, parentIndex), treeNode];
-                this._show(this.state.levelItems.length, levelItems);
+                this._show(levelItems.length, levelItems);
             }
         } else {
             if (this.props.multiselect) {
