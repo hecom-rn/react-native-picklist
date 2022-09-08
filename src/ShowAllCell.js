@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { FullSelect, NotSelect } from '@hecom/general-tree';
 import Types from './Types';
 import { isCascade } from './Util'
+import Listener from '@hecom/listener';
 
 export default class extends React.PureComponent {
     static propTypes = {
@@ -22,7 +23,7 @@ export default class extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.listener = DeviceEventEmitter.addListener(
+        this.listener = Listener.register(
             '__treenode__status__update__' + this.tree.getStringId(),
             this._refresh
         );
