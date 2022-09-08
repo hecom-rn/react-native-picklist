@@ -1,9 +1,10 @@
 import React from 'react';
-import { TouchableOpacity, DeviceEventEmitter } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import Types from './Types';
 import defaultRenderRow from './DefaultRow';
 import {isCascade} from './Util';
+import Listener from '@hecom/listener';
 
 export default class extends React.Component {
     static propTypes = {
@@ -31,7 +32,7 @@ export default class extends React.Component {
 
     componentDidMount() {
         const { refreshSingleCell } = this.props;
-        this.listener = DeviceEventEmitter.addListener(
+        this.listener = Listener.register(
             '__treenode__status__update__' + (refreshSingleCell ? this.tree.getStringId() : ''),
             this._refresh
         );

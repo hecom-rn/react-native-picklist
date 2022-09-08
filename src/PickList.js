@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    DeviceEventEmitter,
     FlatList,
     Image,
     LayoutAnimation,
@@ -23,6 +22,7 @@ import { isCascade } from './Util';
 import { getImage, single_check_image } from './DefaultRow';
 import { ScrollView } from 'react-native-gesture-handler';
 import NaviBar from '@hecom/react-native-pure-navigation-bar';
+import Listener from '@hecom/listener';
 export default class extends React.PureComponent {
 
     static propTypes = Types;
@@ -68,7 +68,7 @@ export default class extends React.PureComponent {
             root: treeRoot,
             childrenKey: childrenKey,
             idKey: idKey,
-            onStatusChange: (treenode) => DeviceEventEmitter.emit(
+            onStatusChange: (treenode) => Listener.trigger(
                 '__treenode__status__update__' + (refreshSingleCell ? treenode.getStringId() : '')
             ),
             rootPath: rootPath,
@@ -84,7 +84,7 @@ export default class extends React.PureComponent {
                     root: addedTreeRoot,
                     childrenKey: childrenKey,
                     idKey: idKey,
-                    onStatusChange: (treenode) => DeviceEventEmitter.emit(
+                    onStatusChange: (treenode) => Listener.trigger(
                         '__treenode__status__update__' + (refreshSingleCell ? treenode.getStringId() : '')
                     ),
                     rootPath: rootPath,
