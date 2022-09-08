@@ -12,8 +12,6 @@ import {
     Text,
     BackHandler
 } from 'react-native';
-import { HeaderButton } from 'react-navigation-header-buttons';
-import {HeaderBackButton} from '@react-navigation/stack';
 import SearchBar from 'react-native-general-searchbar';
 import InitTree from '@hecom/general-tree';
 import Cell from './Cell';
@@ -24,27 +22,8 @@ import Types from './Types';
 import { isCascade } from './Util';
 import { getImage, single_check_image } from './DefaultRow';
 import { ScrollView } from 'react-native-gesture-handler';
-
+import NaviBar from '@hecom/react-native-pure-navigation-bar';
 export default class extends React.PureComponent {
-    static navigationOptions = ({route}) => {
-        const navParams = route.params || {};
-        const {_title_, _right_, _left_, headerTitleContainerStyle} = navParams
-        const returnDic = {};
-        _title_ && (returnDic.title = _title_);
-        headerTitleContainerStyle && (returnDic.headerTitleContainerStyle = headerTitleContainerStyle);
-        if (_right_) {
-            returnDic.headerRight = typeof _right_ ==  'function' ? _right_  : ()=>_right_;
-        }
-        if (_left_) {
-            returnDic.headerLeft = typeof _left_ ==  'function' ? _left_ : _left_;
-        }
-        return returnDic;
-    };
-
-    static initialized = function ({route}) {
-        const {_title_} = route.params;
-        return !!_title_;
-    };
 
     static propTypes = Types;
 
@@ -156,49 +135,7 @@ export default class extends React.PureComponent {
         });
     }
 
-    componentDidMount() {
-        const navOptions = {_title_: this.props.title};
-        const {rightTitle, rightClick} = this.props;
-        if (rightTitle && rightTitle.length > 0) {
-            navOptions._right_ = (
-                <HeaderButton
-                    title={rightTitle}
-                    onPress={rightClick || this._clickOK}
-                />
-            );
-        } else if (!this.props.multiselect && !this.props.directBackWhenSingle) {
-            navOptions._right_ = (
-                <HeaderButton
-                    title={this.props.labels.ok}
-                    onPress={this._clickOK}
-                    {...this.props.buttonProps}
-                />
-            );
-        }
-        if (this.props.multilevel) {
-            navOptions._left_ = (props) => {
-                return (
-                    <View
-                        style={styles.leftButtons}
-                    >
-                        <HeaderBackButton
-                            {...props}
-                            onPress={this._clickBack.bind(this, 0)}
-                        />
-                        {this.props.showTitleLine ? <HeaderButton
-                            title={this.props.labels.close}
-                            onPress={this._clickBack.bind(this, 1)}
-                            {...this.props.buttonProps}
-                        /> : null}
-                    </View>
-                );
-            };
-        }
-        navOptions.headerTitleContainerStyle = {
-            marginHorizontal: 75,
-        }
-        this.props.navigation.setParams(navOptions);
-    }
+    componentDidMount() {}
 
     render() {
         const hasBottom = this.props.showBottomView !== undefined ?
@@ -207,6 +144,7 @@ export default class extends React.PureComponent {
         const hideEmpty = this.state.searchText && this.state.searchText.length > 0;
         return (
             <View style={styles.view}>
+                <NaviBar title={this.props.title} rightElement={this.props.rightTitle} onRight={this.props.rightClick || this._clickOK} />
                 {this.props.showSearchView && this._renderSearchBar()}
                 <SafeAreaView style={this.props.multilevel && this.state.levelDeep >1 ? [styles.innersafeview, {'backgroundColor' : 'white'}] : styles.innersafeview}>
                     <View
