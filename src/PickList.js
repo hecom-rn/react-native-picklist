@@ -141,10 +141,13 @@ export default class extends React.PureComponent {
         const hasBottom = this.props.showBottomView !== undefined ?
             this.props.showBottomView :
             this.props.multiselect;
+        const {rightTitle, rightClick, multiselect, directBackWhenSingle} = this.props;
         const hideEmpty = this.state.searchText && this.state.searchText.length > 0;
+        const rightElement = rightTitle && rightTitle.length > 0 ? rightTitle : !multiselect && !directBackWhenSingle ? this.props.labels.ok : undefined
+        const onRight = rightTitle && rightTitle.length > 0 ? rightClick || this._clickOK : !multiselect && !directBackWhenSingle ? this._clickOK : undefined
         return (
             <View style={styles.view}>
-                <NaviBar title={this.props.title} rightElement={this.props.rightTitle} onRight={this.props.rightClick || this._clickOK} />
+                <NaviBar title={this.props.title} rightElement={rightElement} onRight={onRight} />
                 {this.props.showSearchView && this._renderSearchBar()}
                 <SafeAreaView style={this.props.multilevel && this.state.levelDeep >1 ? [styles.innersafeview, {'backgroundColor' : 'white'}] : styles.innersafeview}>
                     <View
