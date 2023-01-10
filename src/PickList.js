@@ -103,8 +103,10 @@ export default class extends React.PureComponent {
             selectedItems: selectItems,
             searchText: '',
             isSearching: false,
-            screenWidth: 0,
-            scrollPageWidth: 0,
+            // screenWidth: 0,
+            screenWidth: global.screenWidth(),
+            // scrollPageWidth: 0,
+            scrollPageWidth: this.props.multilevel ? 250 : 390,
             addedLevelItems: addedTrees,
             shadowItems: [],
             levelDeep: tree.getDeepth(true),
@@ -332,7 +334,7 @@ export default class extends React.PureComponent {
                 key={index}
                 renderItem={wrapRenderRow}
                 ListHeaderComponent={hasShowAll && this._renderShowAll}
-                style={[styles.listview, style]}
+                style={[styles.listview, style, { height: undefined}]}
                 contentContainerStyle={style}
                 keyExtractor={(item) => item.getStringId()}
                 {...dataProps}
@@ -349,7 +351,7 @@ export default class extends React.PureComponent {
         const totalWidth = this.state.scrollPageWidth * deepth;
         return (
             <ScrollView style={[styles.displayView, {width: this.state.screenWidth}]} ref={(ref) => (this.pageScrollView = ref)} bounces={false} horizontal={true}>
-                <View style={[{width: totalWidth}, styles.displayView, this.state.frame]}>
+                <View style={[{width: totalWidth}, styles.displayView, this.state.frame, { height: undefined}]}>
                 {
                     new Array(deepth).fill(1).map((item, index) => {
                         if (index < this.state.levelItems.length) {
