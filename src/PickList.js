@@ -106,7 +106,7 @@ export default class extends React.PureComponent {
             // screenWidth: 0,
             screenWidth: global.screenWidth(),
             // scrollPageWidth: 0,
-            scrollPageWidth: this.props.multilevel ? 250 : 390,
+            scrollPageWidth: this.props.multilevel ? 250 : global.screenWidth(),
             addedLevelItems: addedTrees,
             shadowItems: [],
             levelDeep: tree.getDeepth(true),
