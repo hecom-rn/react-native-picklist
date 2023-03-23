@@ -76,6 +76,7 @@ export const multiLevelNotLeafNode = (treeNode, props) => {
                 <Text
                     style={[styles.treeCellText, {marginLeft: selectable ? 0 : 25}]}
                     numberOfLines={numberOfTextLines}
+                    testID={`SelectText_${info}`}
                 >
                     {info}
                 </Text>
