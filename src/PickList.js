@@ -58,6 +58,21 @@ export default class extends React.PureComponent {
 
     constructor(props) {
         super(props);
+        const info = this._getInfoFromProps(props);
+        this.state = {
+            levelItems: [info.tree],
+            selectedItems: info.selectItems,
+            searchText: '',
+            isSearching: false,
+            screenWidth: 0,
+            scrollPageWidth: 0,
+            addedLevelItems: info.addedTrees,
+            shadowItems: [],
+            levelDeep: info.tree.getDeepth(true),
+        };
+    }
+
+    _getInfoFromProps = (props) => {
         const {data, firstRawRootPath, childrenKey, idKey, labelKey, firstTitleLine, selectedIds, refreshSingleCell, rootPath, parentPath, addedData} = props;
         this.defaultRootId = '__root__';
         const idOnlyKey = Array.isArray(idKey) ? idKey[0] : idKey;
@@ -98,17 +113,28 @@ export default class extends React.PureComponent {
                 selectItems = selectItems.concat(tmp);
             });
         }
-        this.state = {
-            levelItems: [tree],
-            selectedItems: selectItems,
-            searchText: '',
-            isSearching: false,
-            screenWidth: 0,
-            scrollPageWidth: 0,
-            addedLevelItems: addedTrees,
-            shadowItems: [],
-            levelDeep: tree.getDeepth(true),
-        };
+        return {tree, addedTrees, selectItems};
+    };
+
+    componentDidUpdate(prevProps) {
+        if (
+            JSON.stringify(prevProps) !== JSON.stringify(this.props)
+        ) {
+            const info = this._getInfoFromProps(this.props);
+            
+            const scrollPageWidth = this.props.multilevel && info.tree.getDeepth(true) > 1 && !this.state.isSearching ? 250 : this.state.screenWidth;
+            this.setState({
+                    levelItems: [info.tree],
+                    selectedItems: info.selectItems,
+                    searchText: '',
+                    isSearching: false,
+                    scrollPageWidth,
+                    addedLevelItems: info.addedTrees,
+                    shadowItems: [],
+                    levelDeep: info.tree.getDeepth(true),
+            });
+            this.forceUpdate();
+        }
     }
 
     UNSAFE_componentWillMount() {
@@ -315,7 +341,6 @@ export default class extends React.PureComponent {
         const dataProps = isSection ? {sections: nodeArr} : {data: nodeArr};
         const ListProps = isSection ? sectionListProps : flatListProps;
         const hasShowAll = isCascade(this.props) && showAllCell;
-
         const wrapRenderRow = (...params)=>{
             const obj = params[0];
             const {item} = obj;
