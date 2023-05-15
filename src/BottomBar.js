@@ -12,11 +12,12 @@ export default class extends React.PureComponent {
     };
 
     componentDidUpdate(prevProps) {
-        if (prevProps.selectedItems.length !== this.props.selectedItems.length) {
-            setTimeout(() => {
-                this.scrollView && this.scrollView.scrollToEnd({animated: false});
-            }, 0);
-        }
+        // 在h5中不支持此方法，先注释，后面实现
+        // if (prevProps.selectedItems.length !== this.props.selectedItems.length) {
+        //     setTimeout(() => {
+        //         this.scrollView && this.scrollView.scrollToEnd({animated: false});
+        //     }, 0);
+        // }
     }
 
     render() {

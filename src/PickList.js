@@ -334,7 +334,7 @@ export default class extends React.PureComponent {
                 key={index}
                 renderItem={wrapRenderRow}
                 ListHeaderComponent={hasShowAll && this._renderShowAll}
-                style={[styles.listview, style, { height: undefined}]}
+                style={[styles.listview, style, { height: '100%'}]}
                 contentContainerStyle={style}
                 keyExtractor={(item) => item.getStringId()}
                 {...dataProps}
@@ -634,6 +634,7 @@ const styles = StyleSheet.create({
     innersafeview: {
         flex: 1,
         backgroundColor: '#F7F7F9',
+        height: 0
     },
     searchbarContainer: {
         flex: 0,
