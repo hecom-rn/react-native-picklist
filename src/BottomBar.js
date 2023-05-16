@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
         height: 60,
         flexDirection: 'row',
         alignItems: 'center',
+        display: 'flex',
     },
     itemTouch: {
         paddingLeft: 6,
@@ -102,11 +103,12 @@ const styles = StyleSheet.create({
         marginRight: 4,
         borderRadius: 4,
         backgroundColor: 'white',
-        minWidth: 36,
+        minWidth: 'fit-content',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: '#e6e8ea',
+        borderStyle: 'solid',
     },
     itemText: {
         fontSize: 12,
