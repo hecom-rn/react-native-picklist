@@ -33,6 +33,31 @@ export default class extends React.PureComponent {
         this.listener.remove();
     }
 
+    shouldComponentUpdate(nextProps) {
+        let changed = false;
+        Object.keys(this.props).forEach((key) => {
+            if (typeof this.props[key] === 'object') {
+                try {
+                    const raw = JSON.stringify(this.props[key]);
+                    const next = JSON.stringify(nextProps[key]);
+                    if (raw !== next) {
+                        changed = true;
+                    }
+                } catch (err) {
+                    changed = true;
+                }
+            } else if (nextProps[key] !== this.props[key]) {
+                changed = true;
+            }
+        });
+        if (changed) {
+            this.tree = nextProps.treeNode;
+            this.cascade = isCascade(nextProps);
+            // this._refresh();
+        }
+        return changed;
+    }
+
     render() {
         const {labels: {selectAll, deselectAll}, renderMultiSelectIcon, multilevel} = this.props;
         const isFull = this.tree.isFullSelect(this.cascade);

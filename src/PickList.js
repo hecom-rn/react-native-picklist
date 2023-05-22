@@ -310,11 +310,11 @@ export default class extends React.PureComponent {
         ) : undefined;
     };
 
-    _renderShowAll = () => {
+    _renderShowAll = (index) => {
         return (
             <ShowAllCell
                 {...this.props}
-                treeNode={this.state.levelItems[this.state.levelItems.length - 1]}
+                treeNode={index <= this.state.levelItems.length - 1 ? this.state.levelItems[index] : this.state.levelItems[this.state.levelItems.length - 1]}
                 onPress={this._selectItem}
             />
         );
@@ -356,7 +356,7 @@ export default class extends React.PureComponent {
             <ListClass
                 key={index}
                 renderItem={wrapRenderRow}
-                ListHeaderComponent={hasShowAll && this._renderShowAll}
+                ListHeaderComponent={hasShowAll &&  this._renderShowAll(index)}
                 style={[styles.listview, style]}
                 contentContainerStyle={style}
                 keyExtractor={(item) => item.getStringId()}
