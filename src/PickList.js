@@ -350,8 +350,8 @@ export default class extends React.PureComponent {
         const deepth = this.state.levelItems.length;
         const totalWidth = this.state.scrollPageWidth * deepth;
         return (
-            <ScrollView style={[styles.displayView, {width: this.state.screenWidth}]} ref={(ref) => (this.pageScrollView = ref)} bounces={false} horizontal={true}>
-                <View style={[{width: totalWidth}, styles.displayView, this.state.frame, { height: '100%'}]}>
+            <ScrollView enable-flex={true} style={[styles.displayView, {width: this.state.screenWidth, position: 'relative', display: 'flex', flexDirection: 'column', height: 0}]} ref={(ref) => (this.pageScrollView = ref)} bounces={false} horizontal={true}>
+                <View style={[{width: totalWidth}, styles.displayView, this.state.frame, { height: '100%', position: 'absolute', top:0, bottom: 0}]}>
                 {
                     new Array(deepth).fill(1).map((item, index) => {
                         if (index < this.state.levelItems.length) {
