@@ -62,6 +62,7 @@ export default class extends React.PureComponent {
                 key={index}
                 style={styles.itemTouch}
                 onPress={() => onPressItem(index)}
+                className="bottomBarItem"
             >
                 <Text style={styles.itemText}>
                     {node.getInfo()[labelKey]}
@@ -94,6 +95,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         display: 'flex',
+        lineHeight: 60,
+        whiteSpace: 'nowrap',
+        flex: 1,
+        width: 0
     },
     itemTouch: {
         paddingLeft: 6,
@@ -109,6 +114,7 @@ const styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: '#e6e8ea',
         borderStyle: 'solid',
+        lineHeight: 30,
     },
     itemText: {
         fontSize: 12,
