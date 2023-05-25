@@ -73,7 +73,7 @@ export default class extends React.PureComponent {
 
     _renderEmpty = () => {
         return (
-            <View style={styles.emptyView}>
+            <View className="bottomBarItem" style={styles.emptyView}>
                 <Text style={styles.emptyText}>
                     {this.props.labels.choose}
                 </Text>
@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
         minWidth: 20,
         justifyContent: 'center',
         alignItems: 'center',
+        lineHeight: 20
     },
     emptyText: {
         fontSize: 14,
