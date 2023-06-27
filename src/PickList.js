@@ -53,7 +53,11 @@ export default class extends React.PureComponent {
         renderSingleSelectIcon: () => <Image source={single_check_image()} style={styles.icon} />,
         renderMultiSelectIcon: (selectState) => <Image source={getImage(selectState)} style={styles.multiIcon} />,
         prefixTestID: '',
-        refreshSingleCell: true
+        refreshSingleCell: true,
+        showRegularCount: false, // 是否右侧显示固定的数字(不管是否是叶子节点，都会有)
+        regularCountKey: 'count', // 固定数字的Key
+        showSearchLeafNodeParentName: false, // 是否在搜索时，在叶子节点显示父节点的名字
+        defaultMultiLevelShowItemIndex: undefined, // 多选层级时，默认展开显示的条目
     };
 
     constructor(props) {
@@ -161,7 +165,15 @@ export default class extends React.PureComponent {
         });
     }
 
-    componentDidMount() {}
+    componentDidMount() {
+        const {defaultMultiLevelShowItemIndex} = this.props;
+        if (defaultMultiLevelShowItemIndex !== undefined) {
+            const childrenLevelItems = this.state.levelItems[0]?.getChildren();
+            if (childrenLevelItems && Array.isArray(childrenLevelItems) && childrenLevelItems.length > defaultMultiLevelShowItemIndex) {
+                this._clickRow(childrenLevelItems[defaultMultiLevelShowItemIndex]);
+            }
+        }
+    }
 
     render() {
         const hasBottom = this.props.showBottomView !== undefined ?
