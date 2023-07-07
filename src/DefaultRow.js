@@ -35,7 +35,7 @@ export const multiLevelLeafNode = (treeNode, props) => {
                 testID={`SelectIcon_${info}`}
                 style={styles.cellSelected}>{renderMultiSelectIcon(selectState)}</View>
             <View style={styles.textContainer}>
-                <Text style={styles.leafText} numberOfLines={numberOfTextLines}>
+                <Text style={styles.leafText} numberOfLines={numberOfTextLines} testID={`SelectText_${info}`}>
                     {info}
                 </Text>
                 {props.isWeakNode && (
@@ -76,6 +76,7 @@ export const multiLevelNotLeafNode = (treeNode, props) => {
                 <Text
                     style={[styles.treeCellText, {marginLeft: selectable ? 0 : 25}]}
                     numberOfLines={numberOfTextLines}
+                    testID={`SelectText_${info}`}
                 >
                     {info}
                 </Text>
