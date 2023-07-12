@@ -26,7 +26,7 @@ export const multiLevelNode = (treeNode, props) => {
 };
 
 export const multiLevelLeafNode = (treeNode, props) => {
-    const selectState = getSelectState(treeNode, isCascade(props));
+    const selectState = getSelectState(treeNode, isCascade(props), false);
     const {labelKey, numberOfTextLines, renderMultiSelectIcon, weakNodeTag, multilevel, isSearching, showRegularCount, regularCountKey, showSearchLeafNodeParentName} = props;
     const info = treeNode.getInfo()[labelKey];
     const searchParentName = showSearchLeafNodeParentName ? treeNode?.getParent()?.getInfo()?.[labelKey] : undefined;
@@ -63,7 +63,7 @@ export const multiLevelLeafNode = (treeNode, props) => {
 };
 
 export const multiLevelNotLeafNode = (treeNode, props) => {
-    const selectState = getSelectState(treeNode, isCascade(props));
+    const selectState = getSelectState(treeNode, isCascade(props), false);
     const showShadowState = getShadowState(treeNode, props);
     const {onPress, labelKey, showCount, numberOfTextLines, renderMultiSelectIcon, multilevel, isSearching, showRegularCount, regularCountKey} = props;
     const selectable = props.selectable ? props.selectable(treeNode) : true;
@@ -126,12 +126,12 @@ export const getImage = (selectState) => {
     }
 };
 
-export const getSelectState = (treeNode, cascade) => {
-    if (treeNode.isNotSelect(cascade)) {
+export const getSelectState = (treeNode, cascade, multiselect = true) => {
+    if (treeNode.isNotSelect(cascade, multiselect)) {
         return NotSelect;
-    } else if (treeNode.isFullSelect(cascade)) {
+    } else if (treeNode.isFullSelect(cascade, multiselect)) {
         return FullSelect;
-    } else if (treeNode.isIncompleteSelect(cascade)) {
+    } else if (treeNode.isIncompleteSelect(cascade, multiselect)) {
         return IncompleteSelect;
     } else {
         return undefined;
