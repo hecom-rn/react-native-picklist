@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     emptyView: {
         paddingLeft: 4,
         paddingRight: 4,
-        height: 20,
+        minHeight: 20,
         marginLeft: 5,
         marginRight: 5,
         borderRadius: 4,
