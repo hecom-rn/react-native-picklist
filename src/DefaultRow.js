@@ -29,15 +29,18 @@ export const multiLevelLeafNode = (treeNode, props) => {
     const selectState = getSelectState(treeNode, isCascade(props), false);
     const {labelKey, numberOfTextLines, renderMultiSelectIcon, weakNodeTag, multilevel, isSearching, showRegularCount, regularCountKey, showSearchLeafNodeParentName} = props;
     const info = treeNode.getInfo()[labelKey];
+    const selectable = props.selectable ? props.selectable(treeNode) : true;
     const searchParentName = showSearchLeafNodeParentName ? treeNode?.getParent()?.getInfo()?.[labelKey] : undefined;
     const regularCount = treeNode.getInfo()[regularCountKey];
     const arrowStyle = {marginLeft: 0, width: 13, height: 16};
     return (
         <View key={info} style={multilevel && !isSearching ? [styles.leafContainer , { borderBottomWidth: 0, justifyContent: showRegularCount ? 'space-around' : 'flex-start'}] : [styles.leafContainer, {justifyContent: showRegularCount ? 'space-around' : 'flex-start'}]}>
-            <View
-                testID={`SelectIcon_${info}`}
-                style={styles.cellSelected}>{renderMultiSelectIcon(selectState)}</View>
-            <View style={styles.textContainer}>
+            {selectable &&
+                <View testID={`SelectIcon_${info}`} style={styles.cellSelected}>
+                    {renderMultiSelectIcon(selectState)}
+                </View>
+            }
+            <View style={[styles.textContainer, {marginLeft: selectable ? 0 : 25}]}>
                 <Text style={styles.leafText} numberOfLines={numberOfTextLines} testID={`SelectText_${info}`}>
                     {isSearching && searchParentName ? `${info}(${searchParentName})` : info}
                 </Text>
