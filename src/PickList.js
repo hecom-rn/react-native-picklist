@@ -125,7 +125,7 @@ export default class extends React.PureComponent {
             JSON.stringify(prevProps) !== JSON.stringify(this.props)
         ) {
             const info = this._getInfoFromProps(this.props);
-            
+
             const scrollPageWidth = this.props.multilevel && info.tree.getDeepth(true) > 1 && !this.state.isSearching ? 250 : this.state.screenWidth;
             this.setState({
                     levelItems: [info.tree],
@@ -510,6 +510,9 @@ export default class extends React.PureComponent {
                 this._show(levelItems.length, levelItems);
             }
         } else {
+            if (this.props.selectable && !this.props.selectable(treeNode)){
+                return;
+            }
             if (this.props.multiselect) {
                 this._selectItem(treeNode);
             } else {
