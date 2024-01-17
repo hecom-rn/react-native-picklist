@@ -53,7 +53,11 @@ export default class extends React.PureComponent {
         renderSingleSelectIcon: () => <Image source={single_check_image()} style={styles.icon} />,
         renderMultiSelectIcon: (selectState) => <Image source={getImage(selectState)} style={styles.multiIcon} />,
         prefixTestID: '',
-        refreshSingleCell: true
+        refreshSingleCell: true,
+        showRegularCount: false, // 是否右侧显示固定的数字(不管是否是叶子节点，都会有)
+        regularCountKey: 'count', // 固定数字的Key
+        showSearchLeafNodeParentName: false, // 是否在搜索时，在叶子节点显示父节点的名字
+        defaultMultiLevelShowItemIndex: undefined, // 多选层级时，默认展开显示的条目
     };
 
     constructor(props) {
@@ -123,7 +127,7 @@ export default class extends React.PureComponent {
             JSON.stringify(prevProps) !== JSON.stringify(this.props)
         ) {
             const info = this._getInfoFromProps(this.props);
-            
+
             const scrollPageWidth = this.props.multilevel && info.tree.getDeepth(true) > 1 && !this.state.isSearching ? 250 : this.state.screenWidth;
             this.setState({
                     levelItems: [info.tree],
@@ -163,7 +167,15 @@ export default class extends React.PureComponent {
         });
     }
 
-    componentDidMount() {}
+    componentDidMount() {
+        const {defaultMultiLevelShowItemIndex} = this.props;
+        if (defaultMultiLevelShowItemIndex !== undefined) {
+            const childrenLevelItems = this.state.levelItems[0]?.getChildren();
+            if (childrenLevelItems && Array.isArray(childrenLevelItems) && childrenLevelItems.length > defaultMultiLevelShowItemIndex) {
+                this._clickRow(childrenLevelItems[defaultMultiLevelShowItemIndex]);
+            }
+        }
+    }
 
     render() {
         const hasBottom = this.props.showBottomView !== undefined ?
@@ -362,6 +374,7 @@ export default class extends React.PureComponent {
                 style={[styles.listview, style, { height: '100%'}]}
                 contentContainerStyle={style}
                 keyExtractor={(item) => item.getStringId()}
+                bounces = {false}
                 {...dataProps}
                 {...ListProps}
             />);
@@ -499,6 +512,9 @@ export default class extends React.PureComponent {
                 this._show(levelItems.length, levelItems);
             }
         } else {
+            if (this.props.selectable && !this.props.selectable(treeNode)){
+                return;
+            }
             if (this.props.multiselect) {
                 this._selectItem(treeNode);
             } else {
