@@ -464,12 +464,9 @@ export default class extends React.PureComponent {
     };
 
     _popToPrevious = () => {
-        if (this.props.navigation && !this.backTime) {
+        if (this.props.navigation && !this.hasPop) {
+            this.hasPop = true;
             this.props.navigation.goBack();
-            this.backTime = setTimeout(() => {
-                clearTimeout(this.backTime)
-                this.backTime = undefined;
-            }, 1000);
         }
     };
 
