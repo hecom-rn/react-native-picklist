@@ -350,7 +350,7 @@ export default class extends React.PureComponent {
             }
         }
         const style = multilevel && this.state.levelDeep > 1 ? {width: this.state.scrollPageWidth, borderRightWidth: StyleSheet.hairlineWidth,
-            borderRightColor: '#e6e6ea',} : {width: this.state.scrollPageWidth};
+            borderRightColor: '#e6e6ea', borderRightStyle: 'solid'} : {width: this.state.scrollPageWidth};
         const ListClass = isSection ? SectionList : FlatList;
         const dataProps = isSection ? {sections: nodeArr} : {data: nodeArr};
         const ListProps = isSection ? sectionListProps : flatListProps;
