@@ -97,7 +97,7 @@ export const multiLevelNotLeafNode = (treeNode, props) => {
             <View style={styles.treeCellRight}>
                 {showCount && (
                     <Text style={styles.treeCellCount}>
-                        {[selectedLeafCount.toString(), leafCount.toString()].join('/')}
+                        <Text style={selectedLeafCount > 0 ? {fontWeight: 'bold', color: '#222222'} : {}}>{selectedLeafCount.toString()}</Text>{`/${leafCount.toString()}`}
                     </Text>
                 )}
                 {showRegularCount && (
