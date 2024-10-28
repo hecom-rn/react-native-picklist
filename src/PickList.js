@@ -452,7 +452,7 @@ export default class extends React.PureComponent {
 
         if (!this.state.isSearching) {
             setTimeout(() => {
-                this.pageScrollView.scrollTo({
+                this.pageScrollView?.scrollTo({
                     x: (index - 2 > 0 ? index - 2 : 0) * this.state.scrollPageWidth,
                     y: 0,
                     animated: true,
