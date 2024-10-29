@@ -439,6 +439,7 @@ export default class extends React.PureComponent {
     };
 
     _show = (index, levelItems) => {
+        const { shadowItemsListener } = this.props;
         LayoutAnimation.easeInEaseOut();
         const shadowItems = this.props.multilevel && levelItems.length > 1 ? levelItems.slice(1) : [];
         this.setState({
@@ -449,6 +450,9 @@ export default class extends React.PureComponent {
             },
             shadowItems,
         });
+        if (shadowItemsListener) {
+            shadowItemsListener(shadowItems);
+        }
 
         if (!this.state.isSearching) {
             setTimeout(() => {

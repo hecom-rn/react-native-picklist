@@ -76,7 +76,7 @@ export const multiLevelNotLeafNode = (treeNode, props) => {
     const selectedLeafCount = treeNode.getSelectedLeafCount({includeWeakNode: true});
     const arrowStyle = showCount || showRegularCount ? {marginLeft: 0} : {marginLeft: 10};
     return (
-        <View key={info} style={[multilevel && !isSearching ? [styles.treeCellContainer , { borderBottomWidth: 0}] : styles.treeCellContainer, showShadowState ? {backgroundColor: '#F7F7F9'} : {backgroundColor: 'white'}]}>
+        <View key={info} style={[multilevel && !isSearching ? [styles.treeCellContainer , { borderBottomWidth: 0}] : styles.treeCellContainer, showShadowState ? {backgroundColor: '#FEEFEF'} : {backgroundColor: 'white'}]}>
             <View style={styles.treeCellLeft}>
                 {selectable && (
                     <TouchableOpacity onPress={() => onPress(treeNode, true)}>
