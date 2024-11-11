@@ -126,9 +126,19 @@ export default class extends React.PureComponent {
         ) {
             const info = this._getInfoFromProps(this.props);
 
+            try {
+                const preData = JSON.stringify(prevProps.data);
+                const data = JSON.stringify(this.props.data);
+                if (preData !== data) {
+                    this.setState({levelItems: [info.tree],});
+                }
+            } catch(err) {
+                this.setState({levelItems: [info.tree],});
+                console.log(err);
+            }
+
             const scrollPageWidth = this.props.multilevel && info.tree.getDeepth(true) > 1 && !this.state.isSearching ? 250 : this.state.screenWidth;
             this.setState({
-                    levelItems: [info.tree],
                     selectedItems: info.selectItems,
                     searchText: '',
                     isSearching: false,
@@ -572,21 +582,7 @@ export default class extends React.PureComponent {
     };
 
     _selectItem = (item) => {
-        const {levelItems} = this.state;
-        if (item?.id) {
-            const tmp = levelItems?.[0]?.findById(item?.id);
-            if (tmp?.length > 0 && typeof tmp[0].update === 'function') {
-                tmp[0].update(this.isCascade);
-                if (tmp[0] !== item) {
-                    item.update(this.isCascade);
-                }
-            } else {
-                item.update(this.isCascade);
-            }
-        } else {
-            item.update(this.isCascade);
-        }
-        
+        item.update(this.isCascade);        
         this._updateSelectedItems();
     };
 
