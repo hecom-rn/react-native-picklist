@@ -572,7 +572,21 @@ export default class extends React.PureComponent {
     };
 
     _selectItem = (item) => {
-        item.update(this.isCascade);
+        const {levelItems} = this.state;
+        if (item?.id) {
+            const tmp = levelItems?.[0]?.findById(item?.id);
+            if (tmp?.length > 0 && typeof tmp[0].update === 'function') {
+                tmp[0].update(this.isCascade);
+                if (tmp[0] !== item) {
+                    item.update(this.isCascade);
+                }
+            } else {
+                item.update(this.isCascade);
+            }
+        } else {
+            item.update(this.isCascade);
+        }
+        
         this._updateSelectedItems();
     };
 
