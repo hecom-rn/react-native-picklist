@@ -47,6 +47,7 @@ export interface PickListProps {
     rootPath?: {(root:any): string};//获取节点路径
     parentPath?: {(root:any): string};//获取父节点路径
     weakNodeTag?: {(): Element}//虚拟节点标签
+    isCascade?: boolean; // false： 1. 即使子节点全部被选中，在底部的已选中列表中也不会合并成父节点；2. 点击父节点的小圈圈，不会选中子节点
     labels: {
         close?: string;
         search?: string;

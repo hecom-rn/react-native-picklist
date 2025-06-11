@@ -128,9 +128,19 @@ export default class extends React.PureComponent {
         ) {
             const info = this._getInfoFromProps(this.props);
 
+            try {
+                const preData = JSON.stringify(prevProps.data);
+                const data = JSON.stringify(this.props.data);
+                if (preData !== data) {
+                    this.setState({levelItems: [info.tree],});
+                }
+            } catch(err) {
+                this.setState({levelItems: [info.tree],});
+                console.log(err);
+            }
+
             const scrollPageWidth = this.props.multilevel && info.tree.getDeepth(true) > 1 && !this.state.isSearching ? 250 : this.state.screenWidth;
             this.setState({
-                    levelItems: [info.tree],
                     selectedItems: info.selectItems,
                     searchText: '',
                     isSearching: false,
@@ -181,13 +191,13 @@ export default class extends React.PureComponent {
         const hasBottom = this.props.showBottomView !== undefined ?
             this.props.showBottomView :
             this.props.multiselect;
-        const {rightTitle, rightClick, multiselect, directBackWhenSingle} = this.props;
+        const {rightTitle, rightClick, multiselect, directBackWhenSingle, disableNaviBar} = this.props;
         const hideEmpty = this.state.searchText && this.state.searchText.length > 0;
         const rightElement = rightTitle && rightTitle.length > 0 ? rightTitle : !multiselect && !directBackWhenSingle ? this.props.labels.ok : undefined
         const onRight = rightTitle && rightTitle.length > 0 ? rightClick || this._clickOK : !multiselect && !directBackWhenSingle ? this._clickOK : undefined
         return (
             <View style={styles.view}>
-                <NaviBar title={this.props.title} rightElement={rightElement} onRight={onRight} />
+                {!disableNaviBar && <NaviBar title={this.props.title} rightElement={rightElement} onRight={onRight} />}
                 {this.props.showSearchView && this._renderSearchBar()}
                 <SafeAreaView style={this.props.multilevel && this.state.levelDeep >1 ? [styles.innersafeview, {'backgroundColor' : 'white'}] : styles.innersafeview}>
                     <View
@@ -441,6 +451,7 @@ export default class extends React.PureComponent {
     };
 
     _show = (index, levelItems) => {
+        const { shadowItemsListener } = this.props;
         LayoutAnimation.easeInEaseOut();
         const shadowItems = this.props.multilevel && levelItems.length > 1 ? levelItems.slice(1) : [];
         this.setState({
@@ -451,10 +462,13 @@ export default class extends React.PureComponent {
             },
             shadowItems,
         });
+        if (shadowItemsListener) {
+            shadowItemsListener(shadowItems);
+        }
 
         if (!this.state.isSearching) {
             setTimeout(() => {
-                this.pageScrollView.scrollTo && this.pageScrollView.scrollTo({
+                this.pageScrollView?.scrollTo && this.pageScrollView?.scrollTo({
                     x: (index - 2 > 0 ? index - 2 : 0) * this.state.scrollPageWidth,
                     y: 0,
                     animated: true,
@@ -570,7 +584,7 @@ export default class extends React.PureComponent {
     };
 
     _selectItem = (item) => {
-        item.update(this.isCascade);
+        item.update(this.isCascade);        
         this._updateSelectedItems();
     };
 

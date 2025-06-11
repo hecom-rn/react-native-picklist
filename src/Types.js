@@ -45,5 +45,6 @@ export default {
         cancel: PropTypes.string,
     }),
     renderSingleSelectIcon: PropTypes.func,
+    disableNaviBar: PropTypes.bool,
     renderMultiSelectIcon: PropTypes.func,
 };
