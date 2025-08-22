@@ -42,6 +42,7 @@ export interface PickListProps {
     flatListProps?: FlatListProps;
     sectionListProps?: SectionListProps;
     searchListProps?: FlatListProps;
+    searchListPropsCallBack?: (state: PickListState, data: Tree[]) => FlatListProps;
     buttonProps?: ViewProps;
     firstRawRootPath?: string;//虚拟节点顶端路径
     rootPath?: {(root:any): string};//获取节点路径
