@@ -283,7 +283,10 @@ export default class extends React.PureComponent {
                     keyboardShouldPersistTaps={'always'}
                     onScroll = {this._onScroll.bind(this)}
                     {...this.props.searchListProps}
-                    {...this.props.searchListPropsCallBack?.(this.state, data)}
+                    {...this.props.searchListPropsCallBack?.(this.state, data, (selectedItems) => {
+                        this.props.onFinish && this.props.onFinish(selectedItems);
+                        this._popToPrevious();
+                    })}
                 />
             </View>
         );
