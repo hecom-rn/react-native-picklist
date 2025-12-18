@@ -31,6 +31,7 @@
     "react-native-general-searchbar": "^1.0.6"
   },
   "peerDependencies": {
-    "@hecom/general-tree": "*"
+    "@hecom/general-tree": "*",
+    "react-native-safe-area-context": "*"
   }
 }

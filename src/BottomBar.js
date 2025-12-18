@@ -1,6 +1,7 @@
-import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, ScrollView, SafeAreaView } from 'react-native';
 import PropTypes from 'prop-types';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import Types from './Types';
 
 export default class extends React.PureComponent {
@@ -22,20 +23,25 @@ export default class extends React.PureComponent {
     render() {
         const {selectedItems} = this.props;
         return (
-            <SafeAreaView style={styles.view}>
-                <ScrollView
-                    ref={ref => this.scrollView = ref}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    scrollEnabled={selectedItems.length > 0}
-                    contentContainerStyle={styles.content}
-                >
-                    {selectedItems.length > 0
-                        ? selectedItems.map(this._renderItem)
-                        : this._renderEmpty()}
-                </ScrollView>
-                {this._renderButton()}
-            </SafeAreaView>
+            <SafeAreaInsetsContext.Consumer>
+                {insets => (
+                    <View style={[{paddingBottom: insets?.bottom}, styles.view]}>
+                        <ScrollView
+                            ref={ref => this.scrollView = ref}
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                            scrollEnabled={selectedItems.length > 0}
+                            contentContainerStyle={styles.content}
+                        >
+                            {selectedItems.length > 0
+                                ? selectedItems.map(this._renderItem)
+                                : this._renderEmpty()}
+                        </ScrollView>
+                        {this._renderButton()}
+                    </View>
+                )}
+            </SafeAreaInsetsContext.Consumer>
+            
         );
     }
 
