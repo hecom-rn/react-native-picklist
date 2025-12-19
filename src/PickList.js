@@ -152,7 +152,7 @@ export default class extends React.PureComponent {
     }
 
     UNSAFE_componentWillMount() {
-        BackHandler.addEventListener('hardwareBackPress', () => {
+        this.backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', () => {
             const curIndex = this.state.levelItems.length;
             if (curIndex <= 1 || !this.props.showTitleLine) {
                 this._popToPrevious();
@@ -164,15 +164,7 @@ export default class extends React.PureComponent {
     }
 
     componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress', () => {
-            const curIndex = this.state.levelItems.length;
-            if (curIndex <= 1 || !this.props.showTitleLine) {
-                this._popToPrevious();
-            } else {
-                this._handlePressToPrevPage(curIndex - 1);
-            }
-            return true;
-        });
+        this.backHandlerSubscription?.remove();
     }
 
     componentDidMount() {
