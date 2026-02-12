@@ -32,6 +32,7 @@
   },
   "peerDependencies": {
     "@hecom/general-tree": "*",
+    "lodash": "*",
     "react-native-safe-area-context": "*"
   }
 }

@@ -23,6 +23,7 @@ import { getImage, single_check_image } from './DefaultRow';
 import { ScrollView } from 'react-native-gesture-handler';
 import NaviBar from '@hecom/react-native-pure-navigation-bar';
 import Listener from '@hecom/listener';
+import { isEqual } from 'lodash';
 export default class extends React.PureComponent {
 
     static propTypes = Types;
@@ -122,7 +123,7 @@ export default class extends React.PureComponent {
 
     componentDidUpdate(prevProps) {
         if (
-            JSON.stringify(prevProps) !== JSON.stringify(this.props)
+            !isEqual(prevProps, this.props)
         ) {
             const info = this._getInfoFromProps(this.props);
 
