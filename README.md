@@ -60,21 +60,6 @@ export default class TopPage extends React.PureComponent {
 }
 ```
 
-If you want to use button in  `navigationOptions`, you should set following items:
-
-```javascript
-import { HeaderButton } from 'react-navigation-header-buttons';
-
-HeaderButton.defaultProps.getButtonElement = (props) => {
-    const {title} = props;
-    return (
-        <Text>
-            {title}
-        </Text>
-    );
-};
-```
-
 You can set the following properties or see example project to learn how to use it.
 
 ## Properties
