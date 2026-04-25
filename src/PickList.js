@@ -1,29 +1,30 @@
+import InitTree from '@hecom/general-tree';
+import Listener from '@hecom/listener';
+import NaviBar from '@hecom/react-native-pure-navigation-bar';
+import { isEqual } from 'lodash';
 import React from 'react';
 import {
+    BackHandler,
     FlatList,
     Image,
+    Keyboard,
     LayoutAnimation,
     SafeAreaView,
     SectionList,
     StyleSheet,
-    View,
-    Keyboard,
     Text,
-    BackHandler
+    TouchableOpacity,
+    View
 } from 'react-native';
 import SearchBar from 'react-native-general-searchbar';
-import InitTree from '@hecom/general-tree';
-import Cell from './Cell';
-import TitleLine from './TitleLine';
+import { ScrollView } from 'react-native-gesture-handler';
 import BottomBar from './BottomBar';
+import Cell from './Cell';
+import { getImage, single_check_image } from './DefaultRow';
 import ShowAllCell from './ShowAllCell';
+import TitleLine from './TitleLine';
 import Types from './Types';
 import { isCascade } from './Util';
-import { getImage, single_check_image } from './DefaultRow';
-import { ScrollView } from 'react-native-gesture-handler';
-import NaviBar from '@hecom/react-native-pure-navigation-bar';
-import Listener from '@hecom/listener';
-import { isEqual } from 'lodash';
 export default class extends React.PureComponent {
 
     static propTypes = Types;
@@ -74,6 +75,10 @@ export default class extends React.PureComponent {
             addedLevelItems: info.addedTrees,
             shadowItems: [],
             levelDeep: info.tree.getDeepth(true),
+            searchResults: [],
+            searchHasMore: false,
+            searchLoading: false,
+            searchPage: 0,
         };
     }
 
@@ -256,6 +261,33 @@ export default class extends React.PureComponent {
 
     _renderSearchingView = () => {
         const style = {width: this.state.screenWidth};
+        if (this.props.searchFunction) {
+            const { searchResults, searchHasMore, searchLoading } = this.state;
+            return (
+                <View style={[styles.searchingViewContainer, style]}>
+                    <FlatList
+                        key={this.state.searchText}
+                        data={searchResults}
+                        renderItem={({item}) => this._renderSearchResultItem(item)}
+                        style={[styles.listview, style]}
+                        contentContainerStyle={style}
+                        keyExtractor={(item, index) => (item.id != null ? String(item.id) : String(index))}
+                        keyboardShouldPersistTaps={'always'}
+                        onScroll={this._onScroll.bind(this)}
+                        onEndReached={() => {
+                            if (searchHasMore && !searchLoading) {
+                                this._loadSearchPage(
+                                    this.state.searchText,
+                                    this.state.searchPage + 1,
+                                    false
+                                );
+                            }
+                        }}
+                        onEndReachedThreshold={0.2}
+                    />
+                </View>
+            );
+        }
         const searchKeys = this.props.searchKeys || [];
         const data = this.state.levelItems[0].search(
             this.state.searchText,
@@ -283,6 +315,54 @@ export default class extends React.PureComponent {
                 />
             </View>
         );
+    };
+
+    _renderSearchResultItem = (item) => {
+        if (this.props.renderSearchResultRow) {
+            return this.props.renderSearchResultRow(item, () => this._selectSearchResult(item));
+        }
+        return (
+            <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => this._selectSearchResult(item)}
+                style={styles.searchResultRow}
+            >
+                {this._renderHighlightText(item.label, this.state.searchText)}
+            </TouchableOpacity>
+        );
+    };
+
+    _renderHighlightText = (text, highlight) => {
+        if (!highlight || !text) {
+            return <Text style={styles.searchResultText} numberOfLines={2}>{text}</Text>;
+        }
+        const lowerText = text.toLowerCase();
+        const lowerHighlight = highlight.toLowerCase();
+        const parts = [];
+        let lastIndex = 0;
+        let idx = lowerText.indexOf(lowerHighlight);
+        while (idx !== -1) {
+            if (idx > lastIndex) {
+                parts.push(<Text key={`p${lastIndex}`}>{text.slice(lastIndex, idx)}</Text>);
+            }
+            parts.push(
+                <Text key={`h${idx}`} style={styles.searchHighlight}>
+                    {text.slice(idx, idx + highlight.length)}
+                </Text>
+            );
+            lastIndex = idx + highlight.length;
+            idx = lowerText.indexOf(lowerHighlight, lastIndex);
+        }
+        if (lastIndex < text.length) {
+            parts.push(<Text key={`p${lastIndex}`}>{text.slice(lastIndex)}</Text>);
+        }
+        return <Text style={styles.searchResultText} numberOfLines={2}>{parts}</Text>;
+    };
+
+    _selectSearchResult = (item) => {
+        const pathItems = item._pathItems || [item];
+        this.props.onFinish && this.props.onFinish(pathItems);
+        this._popToPrevious();
     };
 
     _renderBottomView = () => {
@@ -339,6 +419,16 @@ export default class extends React.PureComponent {
         );
     };
 
+    _getInitialScrollIndexForPage = (nodeArr) => {
+        const { selectedIds } = this.props;
+        if (!selectedIds || !Array.isArray(nodeArr) || nodeArr.length === 0) return undefined;
+        const idx = nodeArr.findIndex(node => {
+            const id = node.getStringId?.();
+            return id && selectedIds.includes(id);
+        });
+        return idx > 0 ? idx : undefined;
+    };
+
     _renderPage = (index) => {
         const {split, sort, sectionListProps, flatListProps, showAllCell, customView, multilevel} = this.props;
         const treeNode = this.state.levelItems[index];
@@ -360,6 +450,7 @@ export default class extends React.PureComponent {
         const dataProps = isSection ? {sections: nodeArr} : {data: nodeArr};
         const ListProps = isSection ? sectionListProps : flatListProps;
         const hasShowAll = isCascade(this.props) && showAllCell;
+        const initialScrollIndex = isSection ? undefined : this._getInitialScrollIndexForPage(nodeArr);
         const wrapRenderRow = (...params)=>{
             const obj = params[0];
             const {item} = obj;
@@ -380,6 +471,9 @@ export default class extends React.PureComponent {
                 contentContainerStyle={style}
                 keyExtractor={(item) => item.getStringId()}
                 bounces = {false}
+                initialScrollIndex={initialScrollIndex}
+                getItemLayout={initialScrollIndex != null ? (_, i) => ({length: 48, offset: 48 * i, index: i}) : undefined}
+                onScrollToIndexFailed={() => {}}
                 {...dataProps}
                 {...ListProps}
             />);
@@ -498,6 +592,21 @@ export default class extends React.PureComponent {
         this._popToPrevious();
     };
 
+    _injectChildren = (treeNode, newChildrenData) => {
+        const { childrenKey = 'children', idKey = 'id', refreshSingleCell } = this.props;
+        const onStatusChange = (node) => Listener.trigger(
+            '__treenode__status__update__' + (refreshSingleCell ? node.getStringId() : '')
+        );
+        const tempRoot = { [childrenKey]: newChildrenData, [idKey]: '__temp_inject__' };
+        const tempTree = InitTree({ root: tempRoot, childrenKey, idKey, onStatusChange });
+        const newChildren = tempTree.getChildren() || [];
+        newChildren.forEach(child => {
+            child.root['__treeparent__'] = treeNode;
+        });
+        treeNode.root['__treechild__'] = newChildren;
+        treeNode.root['__regionLoaded__'] = true;
+    };
+
     _clickRow = (treeNode, isInternal = false) => {
         if (this.props.multilevel &&
             !isInternal &&
@@ -516,6 +625,23 @@ export default class extends React.PureComponent {
             if (parentIndex >= 0) {
                 const levelItems = [...this.state.levelItems.slice(0, parentIndex), treeNode];
                 this._show(levelItems.length, levelItems);
+                if (
+                    treeNode.getChildren().length === 0 &&
+                    this.props.onLoadChildren &&
+                    !treeNode.root['__regionLoaded__']
+                ) {
+                    treeNode.root['__regionLoaded__'] = true;
+                    this.props.onLoadChildren(treeNode.root.info)
+                        .then(newChildren => {
+                            if (!Array.isArray(newChildren) || newChildren.length === 0) return;
+                            this._injectChildren(treeNode, newChildren);
+                            this.forceUpdate();
+                            if (this.props.onChildrenLoaded) {
+                                this.props.onChildrenLoaded(treeNode, newChildren);
+                            }
+                        })
+                        .catch(() => { treeNode.root['__regionLoaded__'] = false; });
+                }
             }
         } else {
             if (this.props.selectable && !this.props.selectable(treeNode)){
@@ -567,6 +693,9 @@ export default class extends React.PureComponent {
             searchText: text,
             scrollPageWidth: global.screenWidth(),
         });
+        if (this.props.searchFunction) {
+            this._loadSearchPage(text, 0, true);
+        }
     };
 
     _onSearch = (text) => {
@@ -575,7 +704,30 @@ export default class extends React.PureComponent {
             isSearching: true,
             searchText: text,
             scrollPageWidth: global.screenWidth(),
+            searchResults: [],
+            searchPage: 0,
+            searchHasMore: false,
         });
+        if (this.props.searchFunction) {
+            this._loadSearchPage(text, 0, true);
+        }
+    };
+
+    _loadSearchPage = (text, page, reset = false) => {
+        if (!this.props.searchFunction || !text || text.trim().length === 0) return;
+        const PAGE_SIZE = 20;
+        this.setState({ searchLoading: true });
+        this.props.searchFunction(text, page, PAGE_SIZE)
+            .then(results => {
+                if (this.state.searchText !== text) return;
+                this.setState(prev => ({
+                    searchResults: reset ? results : [...prev.searchResults, ...results],
+                    searchPage: page,
+                    searchHasMore: results.length >= PAGE_SIZE,
+                    searchLoading: false,
+                }));
+            })
+            .catch(() => this.setState({ searchLoading: false }));
     };
 
     _selectItem = (item) => {
@@ -700,5 +852,20 @@ const styles = StyleSheet.create({
     emptyImage: {
         marginTop: 100,
         alignSelf: 'center',
+    },
+    searchResultRow: {
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#e6e6ea',
+        backgroundColor: 'white',
+    },
+    searchResultText: {
+        fontSize: 14,
+        color: '#333',
+    },
+    searchHighlight: {
+        color: '#FF6600',
+        fontWeight: 'bold',
     },
 });
