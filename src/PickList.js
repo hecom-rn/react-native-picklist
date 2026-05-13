@@ -591,6 +591,11 @@ export default class extends React.PureComponent {
         if (this.hasFinished) return;
         this.hasFinished = true;
         this.props.onFinish && this.props.onFinish(this.state.selectedItems);
+        const result = this.props.onFinish && this.props.onFinish(this.state.selectedItems);
+        if (result === false) {
+            this.hasFinished = false;
+            return;
+        }
         this._popToPrevious();
     };
 
