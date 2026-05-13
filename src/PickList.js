@@ -607,9 +607,16 @@ export default class extends React.PureComponent {
         const tempRoot = { [childrenKey]: newChildrenData, [idKey]: '__temp_inject__' };
         const tempTree = InitTree({ root: tempRoot, childrenKey, idKey, onStatusChange });
         const newChildren = tempTree.getChildren() || [];
-        newChildren.forEach(child => {
-            child.root['__treeparent__'] = treeNode;
-        });
+        const fixParent = (nodes, parent) => {
+            nodes.forEach(child => {
+                child.root['__treeparent__'] = parent;
+                const children = child.getChildren();
+                if (children && children.length > 0) {
+                    fixParent(children, child);
+                }
+            });
+        };
+        fixParent(newChildren, treeNode);
         treeNode.root['__treechild__'] = newChildren;
         treeNode.root['__regionLoaded__'] = true;
     };
@@ -743,24 +750,32 @@ export default class extends React.PureComponent {
     };
 
     _getUpdateSelectedItems = (treeItem) => {
-        let selectedItems =  treeItem.getChildren().reduce((prv, cur) => {
-            return [...prv, ...cur.getFullSelectChildren(this.isCascade)];
-        }, []);
-        const selectedIncludeWeakItems = treeItem.getChildren().reduce((prv, cur) => {
-            return [...prv, ...cur.getFullSelectChildren(this.isCascade, { includeWeakNode: true })];
-        }, []);
-        //加上无任何挂载的虚拟节点
-        if (selectedItems.length !== selectedIncludeWeakItems.length) {
-            const sa = new Set(selectedItems);
-            const minus = selectedIncludeWeakItems.filter(fil => {
-                !sa.has(fil) && treeItem.getChildren().reduce((prv, cur) => {
-                    return prv || fil.hasAncestor(cur);
-                }, false);
-            });
-            selectedItems = [...selectedItems, ...minus];
-        }
+        const result = [];
+        const visited = new Set();
 
-        return selectedItems;
+        const collect = (node) => {
+            if (visited.has(node)) return;
+            visited.add(node);
+            const children = node.getChildren();
+            if (!children || children.length === 0) {
+                // 真正的叶节点，或懒加载边界节点（children:[]尚未展开）
+                // 两者都直接看 isSelected 来决定是否选中
+                if (node.isSelected === 1) result.push(node);
+                return;
+            }
+            if (node.isFullSelect(this.isCascade)) {
+                result.push(node);
+                return;
+            }
+            children.forEach(child => {
+                if (child.getWeakParent().indexOf(node) < 0) {
+                    collect(child);
+                }
+            });
+        };
+
+        (treeItem.getChildren() || []).forEach(collect);
+        return result;
     }
 
     _updateSelectedItems = () => {
