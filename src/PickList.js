@@ -590,7 +590,6 @@ export default class extends React.PureComponent {
     _clickOK = () => {
         if (this.hasFinished) return;
         this.hasFinished = true;
-        this.props.onFinish && this.props.onFinish(this.state.selectedItems);
         const result = this.props.onFinish && this.props.onFinish(this.state.selectedItems);
         if (result === false) {
             this.hasFinished = false;
@@ -678,10 +677,11 @@ export default class extends React.PureComponent {
                         });
                     }
                 } else {
-                    if (this.state.selectedItems.length > 0 &&
-                        !this.state.selectedItems[0].isEqual(treeNode)) {
-                        this.state.selectedItems[0].update(this.isCascade);
-                    }
+                    this.state.selectedItems.forEach(item => {
+                        if (!item.isEqual(treeNode)) {
+                            item.update(this.isCascade);
+                        }
+                    });
                     treeNode.update(this.isCascade);
                     const selectedItems = [treeNode];
                     this.setState({selectedItems}, () => {
