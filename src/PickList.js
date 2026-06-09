@@ -450,7 +450,8 @@ export default class extends React.PureComponent {
         const dataProps = isSection ? {sections: nodeArr} : {data: nodeArr};
         const ListProps = isSection ? sectionListProps : flatListProps;
         const hasShowAll = isCascade(this.props) && showAllCell;
-        const initialScrollIndex = isSection ? undefined : this._getInitialScrollIndexForPage(nodeArr);
+        const isTreeStructure = multilevel && this.state.levelDeep > 1;
+        const initialScrollIndex = isSection || !isTreeStructure || index === 0 ? undefined : this._getInitialScrollIndexForPage(nodeArr);
         const wrapRenderRow = (...params)=>{
             const obj = params[0];
             const {item} = obj;
@@ -472,7 +473,7 @@ export default class extends React.PureComponent {
                 keyExtractor={(item) => item.getStringId()}
                 bounces = {false}
                 initialScrollIndex={initialScrollIndex}
-                getItemLayout={initialScrollIndex != null ? (_, i) => ({length: 48, offset: 48 * i, index: i}) : undefined}
+                getItemLayout={initialScrollIndex != null ? (_, i) => ({length: 56, offset: (hasShowAll ? 56 : 0) + 56 * i, index: i}) : undefined}
                 onScrollToIndexFailed={() => {}}
                 {...dataProps}
                 {...ListProps}
