@@ -60,6 +60,7 @@ export default class extends React.PureComponent {
         regularCountKey: 'count', // 固定数字的Key
         showSearchLeafNodeParentName: false, // 是否在搜索时，在叶子节点显示父节点的名字
         defaultMultiLevelShowItemIndex: undefined, // 多选层级时，默认展开显示的条目
+        mutexGroupKey: undefined, // (treeNode) => string | null; 互斥分组函数，多选模式下跨组互斥。例如：菜单项分 A={1,2}, B={3,4} 两组，勾选组内多项不影响，勾选另一组任意项则自动反清当前组所有项的勾选。函数返回 null/undefined 的节点不受互斥影响。
     };
 
     constructor(props) {
@@ -747,6 +748,19 @@ export default class extends React.PureComponent {
 
     _selectItem = (item) => {
         item.update(this.isCascade);        
+
+        const { mutexGroupKey } = this.props;
+        if (mutexGroupKey) {
+            const group = mutexGroupKey(item);
+            if (group) {
+                this.state.selectedItems.forEach((n) => {
+                    if (n !== item && mutexGroupKey(n) && mutexGroupKey(n) !== group) {
+                        n.update(this.isCascade);
+                    }
+                });
+            }
+        }
+
         this._updateSelectedItems();
     };
 

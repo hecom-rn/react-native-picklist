@@ -47,4 +47,5 @@ export default {
     renderSingleSelectIcon: PropTypes.func,
     disableNaviBar: PropTypes.bool,
     renderMultiSelectIcon: PropTypes.func,
+    mutexGroupKey: PropTypes.func,
 };
