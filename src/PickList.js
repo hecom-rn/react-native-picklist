@@ -430,6 +430,35 @@ export default class extends React.PureComponent {
         return idx > 0 ? idx : undefined;
     };
 
+    _echoColumnRef = (columnIndex) => (ref) => {
+        if (!ref) return;
+        if (!this._echoColumnRefs) {
+            this._echoColumnRefs = {};
+            this._echoScrolled = {};
+        }
+        if (this._echoColumnRefs[columnIndex] !== ref) {
+            this._echoColumnRefs[columnIndex] = ref;
+            this._echoScrolled[columnIndex] = false;
+        }
+    };
+
+    _scrollToEchoIndex = (columnIndex, echoIndex) => {
+        if (!this._echoScrolled || this._echoScrolled[columnIndex]) return;
+        this._echoScrolled[columnIndex] = true;
+        const list = this._echoColumnRefs && this._echoColumnRefs[columnIndex];
+        if (!list) return;
+        list.scrollToIndex({index: echoIndex, animated: false});
+    };
+
+    _onScrollToIndexFailedForEcho = (columnIndex, echoIndex, info) => {
+        const list = this._echoColumnRefs && this._echoColumnRefs[columnIndex];
+        if (!list) return;
+        list.scrollToOffset({offset: info.averageItemLength * info.index, animated: false});
+        setTimeout(() => {
+            list.scrollToIndex({index: echoIndex, animated: false});
+        }, 100);
+    };
+
     _renderPage = (index) => {
         const {split, sort, sectionListProps, flatListProps, showAllCell, customView, multilevel} = this.props;
         const treeNode = this.state.levelItems[index];
@@ -452,7 +481,11 @@ export default class extends React.PureComponent {
         const ListProps = isSection ? sectionListProps : flatListProps;
         const hasShowAll = isCascade(this.props) && showAllCell;
         const isTreeStructure = multilevel && this.state.levelDeep > 1;
-        const initialScrollIndex = isSection || !isTreeStructure || index === 0 ? undefined : this._getInitialScrollIndexForPage(nodeArr);
+        // initialScrollIndex 会冻结初始渲染窗口等待首个 scroll 事件解锁；当滚动目标
+        // 越界（假行高 getItemLayout、或列表不足一屏被 clamp 到原位）时部分平台不会
+        // 回调 scroll，窗口永久冻结，回显重开时列上方区域不渲染。改为不传该属性，
+        // 挂载后用实测布局主动定位到选中项（见 _scrollToEchoIndex 等方法）。
+        const echoScrollIndex = isSection || !isTreeStructure || index === 0 ? undefined : this._getInitialScrollIndexForPage(nodeArr);
         const wrapRenderRow = (...params)=>{
             const obj = params[0];
             const {item} = obj;
@@ -468,14 +501,14 @@ export default class extends React.PureComponent {
             <ListClass
                 key={index}
                 renderItem={wrapRenderRow}
+                ref={echoScrollIndex != null ? this._echoColumnRef(index) : undefined}
                 ListHeaderComponent={hasShowAll &&  this._renderShowAll(index)}
                 style={[styles.listview, style]}
                 contentContainerStyle={style}
                 keyExtractor={(item) => item.getStringId()}
                 bounces = {false}
-                initialScrollIndex={initialScrollIndex}
-                getItemLayout={initialScrollIndex != null ? (_, i) => ({length: 56, offset: (hasShowAll ? 56 : 0) + 56 * i, index: i}) : undefined}
-                onScrollToIndexFailed={() => {}}
+                onContentSizeChange={echoScrollIndex != null ? () => this._scrollToEchoIndex(index, echoScrollIndex) : undefined}
+                onScrollToIndexFailed={echoScrollIndex != null ? (info) => this._onScrollToIndexFailedForEcho(index, echoScrollIndex, info) : () => {}}
                 {...dataProps}
                 {...ListProps}
             />);
