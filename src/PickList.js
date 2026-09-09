@@ -485,7 +485,8 @@ export default class extends React.PureComponent {
         // 越界（假行高 getItemLayout、或列表不足一屏被 clamp 到原位）时部分平台不会
         // 回调 scroll，窗口永久冻结，回显重开时列上方区域不渲染。改为不传该属性，
         // 挂载后用实测布局主动定位到选中项（见 _scrollToEchoIndex 等方法）。
-        const echoScrollIndex = isSection || !isTreeStructure || index === 0 ? undefined : this._getInitialScrollIndexForPage(nodeArr);
+        // 分组列表（SectionList）定位接口不同，维持原状。
+        const echoScrollIndex = isSection ? undefined : this._getInitialScrollIndexForPage(nodeArr);
         const wrapRenderRow = (...params)=>{
             const obj = params[0];
             const {item} = obj;
