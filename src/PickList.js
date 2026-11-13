@@ -9,7 +9,6 @@ import {
     Image,
     Keyboard,
     LayoutAnimation,
-    SafeAreaView,
     SectionList,
     StyleSheet,
     Text,
@@ -196,7 +195,7 @@ export default class extends React.PureComponent {
             <View style={styles.view}>
                 {!disableNaviBar && <NaviBar title={this.props.title} rightElement={rightElement} onRight={onRight} />}
                 {this.props.showSearchView && this._renderSearchBar()}
-                <SafeAreaView style={this.props.multilevel && this.state.levelDeep >1 ? [styles.innersafeview, {'backgroundColor' : 'white'}] : styles.innersafeview}>
+                <View style={this.props.multilevel && this.state.levelDeep >1 ? [styles.innersafeview, {'backgroundColor' : 'white'}] : styles.innersafeview}>
                     <View
                         style={{flex: 1, overflow: 'hidden'}}
                         onLayout={({nativeEvent: {layout: {width}}}) => {
@@ -216,7 +215,7 @@ export default class extends React.PureComponent {
                         {!this.state.isSearching && this._renderHeader()}
                         {this.state.isSearching ? (hideEmpty ? this._renderSearchingView() : this._renderEmpty()) : this._renderPageView()}
                     </View>
-                </SafeAreaView>
+                </View>
                 {hasBottom && this._renderBottomView()}
             </View>
         );
@@ -231,7 +230,7 @@ export default class extends React.PureComponent {
     _renderSearchBar = () => {
         const prefixTestID = this.props.prefixTestID || '';
         return (
-            <SafeAreaView style={styles.searchbarContainer}>
+            <View style={styles.searchbarContainer}>
                 <SearchBar
                     textInputProps={{
                         testID: `${prefixTestID}Input`,
@@ -252,7 +251,7 @@ export default class extends React.PureComponent {
                         inputView: {backgroundColor: 'white'}
                     }}
                 />
-            </SafeAreaView>
+            </View>
         );
     };
 
