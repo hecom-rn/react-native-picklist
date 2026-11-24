@@ -9,6 +9,7 @@ import {
     Image,
     Keyboard,
     LayoutAnimation,
+    Platform,
     SectionList,
     StyleSheet,
     Text,
@@ -24,6 +25,11 @@ import ShowAllCell from './ShowAllCell';
 import TitleLine from './TitleLine';
 import Types from './Types';
 import { isCascade } from './Util';
+
+// hairlineWidth 为亚像素宽度（≈1/density），鸿蒙 RNOH 渲染时部分行边框取整为 0 导致分割线
+// 系统性缺失（bug 71273768 多选选项列表），鸿蒙改用 1dp 实宽兜底（同 react-native-hecom-common SeperatorLine 修法）
+const hairline = Platform.OS === 'harmony' ? 1 : StyleSheet.hairlineWidth;
+
 export default class extends React.PureComponent {
 
     static propTypes = Types;
@@ -473,7 +479,7 @@ export default class extends React.PureComponent {
                 nodeArr = nodeArr.sort(sort);
             }
         }
-        const style = multilevel && this.state.levelDeep > 1 ? {width: this.state.scrollPageWidth, borderRightWidth: StyleSheet.hairlineWidth,
+        const style = multilevel && this.state.levelDeep > 1 ? {width: this.state.scrollPageWidth, borderRightWidth: hairline,
             borderRightColor: '#e6e6ea',} : {width: this.state.scrollPageWidth};
         const ListClass = isSection ? SectionList : FlatList;
         const dataProps = isSection ? {sections: nodeArr} : {data: nodeArr};
@@ -926,7 +932,7 @@ const styles = StyleSheet.create({
     searchResultRow: {
         paddingHorizontal: 16,
         paddingVertical: 14,
-        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomWidth: hairline,
         borderBottomColor: '#e6e6ea',
         backgroundColor: 'white',
     },

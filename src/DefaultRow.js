@@ -1,8 +1,12 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { FullSelect, IncompleteSelect, NotSelect } from '@hecom/general-tree';
 import ArrowImage from '@hecom/image-arrow';
 import { isCascade } from './Util';
+
+// hairlineWidth 为亚像素宽度（≈1/density），鸿蒙 RNOH 渲染时部分行 borderBottom 取整为 0 导致
+// 分割线系统性缺失（bug 71273768 多选选项列表），鸿蒙改用 1dp 实宽兜底（同 react-native-hecom-common SeperatorLine 修法）
+const hairline = Platform.OS === 'harmony' ? 1 : StyleSheet.hairlineWidth;
 
 export default (treeNode, props) => props.multilevel ? multiLevelNode(treeNode, props) : singleLevelNode(treeNode, props);
 
@@ -160,7 +164,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 16,
         paddingRight: 15,
-        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomWidth: hairline,
         borderBottomColor: '#e6e6ea',
     },
     text: {
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingRight: 15,
-        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomWidth: hairline,
         borderBottomColor: '#e6e6ea',
     },
     leafContainer: {
@@ -198,7 +202,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingRight: 15,
-        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomWidth: hairline,
         borderBottomColor: '#e6e6ea',
     },
     textContainer: {
